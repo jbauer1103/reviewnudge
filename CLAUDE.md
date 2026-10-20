@@ -7,7 +7,7 @@ Jeff is a first-time app builder (has only made a few Lovable websites). Explain
 A simple app for small service businesses in Canada and the US (cleaners, plumbers, HVAC, auto detailers, dog groomers). After a job, the owner picks the customer and taps one button. The app opens their phone's own Messages app with a friendly, pre-written text containing their Google review link, and the owner hits send. The app logs the request, sends one follow-up email 48 hours later if the customer has an email, and shows a dashboard of requests sent and Google reviews gained. Price: $39/month, paid on our website (not inside the app).
 
 ## Tech stack (use exactly this)
-- Expo (React Native) with Expo Router and TypeScript. Expo SDK 58 (matches the current Expo Go app).
+- Expo (React Native) with Expo Router and TypeScript. Expo SDK 57. SDK 58 is out, but the App Store / Google Play Expo Go only runs SDK 57 until Expo ships the new Expo Go. Upgrade to 58 only after that, and ask Jeff first.
 - expo-sms to open the Messages app pre-filled (the owner sends it, so we do NOT send automated texts in the MVP)
 - expo-contacts to pick customers from the phone
 - Supabase for the database, login (email magic link) and scheduled server functions
@@ -45,7 +45,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - `src/constants/theme.ts` — colors and spacing (brand green is `tint`).
 
 ## Progress
-- Session 1: Expo SDK 58 app shell with three placeholder tabs (Customers, Dashboard, Settings).
+- Session 1: Expo SDK 57 app shell with three placeholder tabs (Customers, Dashboard, Settings).
 
 ## Expo technical notes
 @AGENTS.md
