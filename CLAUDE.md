@@ -42,13 +42,17 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - `src/app/` — screens (every file is a screen). `_layout.tsx` shows the tabs when logged in, the log in screens when not.
   - `sign-in.tsx` = log in with an email magic link, `auth-callback.tsx` = where the email link lands
   - `(tabs)/_layout.tsx` sets up the tab bar: `(tabs)/index.tsx` = Customers, `(tabs)/dashboard.tsx` = Dashboard, `(tabs)/settings.tsx` = Settings (with Log out)
-- `src/components/` — reusable pieces. `app-tabs.tsx` is the phone tab bar, `app-tabs.web.tsx` the browser one. `session-provider.tsx` tracks who is logged in and reads the login link.
+- `src/app/business-setup.tsx` — Business setup (name, Google review link, review text). Shown after the first log in until a business is saved, and from Settings → Edit business details.
+- `src/components/` — reusable pieces. `business-provider.tsx` loads the owner's business. `app-tabs.tsx` is the phone tab bar, `app-tabs.web.tsx` the browser one. `session-provider.tsx` tracks who is logged in and reads the login link.
 - `src/lib/supabase.ts` — the Supabase connection. Keys come from `.env` (see `.env.example`), never committed.
+- `supabase/migrations/` — database tables and row-level security, run by hand in the Supabase SQL Editor.
+- `scripts/test-login-code.mjs` — testing only: makes a login code for a second test account (needs the secret key in `.env.admin`).
 - `src/constants/theme.ts` — colors and spacing (brand green is `tint`).
 
 ## Progress
 - Session 1: Expo SDK 57 app shell with three placeholder tabs (Customers, Dashboard, Settings).
-- Session 2: Supabase connected. Email log in (tap the link, or type the 8-digit code from the email) and log out. The Supabase Magic Link and Confirm signup email templates include `{{ .Token }}`. Links into Expo Go were unreliable in testing, so the code is the dependable path there. In Supabase Auth → URL Configuration, the redirect URLs `exp://**` (Expo Go) and `reviewnudge://**` (real app) are allowed. Supabase sends auth emails through Resend (custom SMTP, sender `onboarding@resend.dev`), so for now emails only go to the Resend account email. Jeff's uwo.ca inbox holds these emails back; the code can be read in Resend → Emails → Preview. Verify a real domain in Resend before launch. No database tables yet.
+- Session 2: Supabase connected. Email log in (tap the link, or type the 8-digit code from the email) and log out. The Supabase Magic Link and Confirm signup email templates include `{{ .Token }}`. Links into Expo Go were unreliable in testing, so the code is the dependable path there. In Supabase Auth → URL Configuration, the redirect URLs `exp://**` (Expo Go) and `reviewnudge://**` (real app) are allowed. Supabase sends auth emails through Resend (custom SMTP, sender `onboarding@resend.dev`), so for now emails only go to the Resend account email. Jeff's uwo.ca inbox holds these emails back; the code can be read in Resend → Emails → Preview. Verify a real domain in Resend before launch.
+- Session 3: `businesses` (one per owner) and `customers` tables with row-level security, applied in Supabase. Business setup screen. The Google review link is pasted in by hand for now; a Places API lookup is a later step.
 
 ## Expo technical notes
 @AGENTS.md
