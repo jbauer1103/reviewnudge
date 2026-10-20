@@ -5,13 +5,14 @@ A simple app that helps small service businesses ask customers for Google review
 ## Run it on your phone
 
 1. Install [Node.js LTS](https://nodejs.org) and [git](https://git-scm.com/downloads) on your computer.
-2. Install the **Expo Go** app on your phone (App Store or Google Play).
+2. Install the **Expo Go** app on your phone (App Store or Google Play) and log in with a free [Expo account](https://expo.dev/signup).
 3. In a terminal:
 
    ```bash
    git clone https://github.com/jbauer1103/reviewnudge.git
    cd reviewnudge
    npm install
+   npx expo login
    npx expo start
    ```
 
