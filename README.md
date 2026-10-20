@@ -18,4 +18,10 @@ A simple app that helps small service businesses ask customers for Google review
 
 4. Scan the QR code: on iPhone use the Camera app, on Android use the Expo Go app. Your phone and computer must be on the same Wi-Fi.
 
+## Connect Supabase (one time)
+
+1. In your Supabase project, go to **Authentication → URL Configuration**. Under **Redirect URLs**, add `exp://**` and `reviewnudge://**`.
+2. Copy `.env.example` to a new file called `.env` in the project folder and paste in your **Project URL** and **Publishable key**. `.env` never goes to GitHub.
+3. Restart the app with `npx expo start --clear` so it picks up the keys.
+
 See `CLAUDE.md` for the project plan and working rules.

@@ -39,13 +39,16 @@ A simple app for small service businesses in Canada and the US (cleaners, plumbe
 GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone on his computer and opens it on his phone with Expo Go.
 
 ## Project layout
-- `src/app/` — screens (every file is a screen). `_layout.tsx` sets up the tab bar.
-  - `index.tsx` = Customers tab, `dashboard.tsx` = Dashboard tab, `settings.tsx` = Settings tab
-- `src/components/` — reusable pieces. `app-tabs.tsx` is the phone tab bar, `app-tabs.web.tsx` the browser one.
+- `src/app/` — screens (every file is a screen). `_layout.tsx` shows the tabs when logged in, the log in screens when not.
+  - `sign-in.tsx` = log in with an email magic link, `auth-callback.tsx` = where the email link lands
+  - `(tabs)/_layout.tsx` sets up the tab bar: `(tabs)/index.tsx` = Customers, `(tabs)/dashboard.tsx` = Dashboard, `(tabs)/settings.tsx` = Settings (with Log out)
+- `src/components/` — reusable pieces. `app-tabs.tsx` is the phone tab bar, `app-tabs.web.tsx` the browser one. `session-provider.tsx` tracks who is logged in and reads the login link.
+- `src/lib/supabase.ts` — the Supabase connection. Keys come from `.env` (see `.env.example`), never committed.
 - `src/constants/theme.ts` — colors and spacing (brand green is `tint`).
 
 ## Progress
 - Session 1: Expo SDK 57 app shell with three placeholder tabs (Customers, Dashboard, Settings).
+- Session 2: Supabase connected. Email magic-link log in and log out. In Supabase Auth → URL Configuration, the redirect URLs `exp://**` (Expo Go) and `reviewnudge://**` (real app) are allowed. No database tables yet.
 
 ## Expo technical notes
 @AGENTS.md

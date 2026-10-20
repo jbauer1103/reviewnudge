@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -11,10 +12,20 @@ type PlaceholderScreenProps = {
   description: string;
   /** What this screen will do once it is built. */
   comingSoon: string[];
+  /** Label above the list. Defaults to "Coming soon". */
+  badge?: string;
+  /** Anything extra to show under the list, like a button. */
+  children?: ReactNode;
 };
 
 // A simple "coming soon" screen used by each tab until its real feature is built.
-export function PlaceholderScreen({ title, description, comingSoon }: PlaceholderScreenProps) {
+export function PlaceholderScreen({
+  title,
+  description,
+  comingSoon,
+  badge = 'Coming soon',
+  children,
+}: PlaceholderScreenProps) {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
 
@@ -35,7 +46,7 @@ export function PlaceholderScreen({ title, description, comingSoon }: Placeholde
         <ThemedView type="backgroundElement" style={styles.card}>
           <ThemedView type="tintSoft" style={styles.badge}>
             <ThemedText type="smallBold" themeColor="tint">
-              Coming soon
+              {badge}
             </ThemedText>
           </ThemedView>
           {comingSoon.map((item) => (
@@ -44,6 +55,8 @@ export function PlaceholderScreen({ title, description, comingSoon }: Placeholde
             </ThemedText>
           ))}
         </ThemedView>
+
+        {children}
       </ThemedView>
     </ScrollView>
   );
