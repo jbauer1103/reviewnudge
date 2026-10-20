@@ -18,4 +18,12 @@ A simple app that helps small service businesses ask customers for Google review
 
 4. Scan the QR code: on iPhone use the Camera app, on Android use the Expo Go app. Your phone and computer must be on the same Wi-Fi.
 
+## Connect Supabase (one time)
+
+1. In your Supabase project, go to **Authentication → URL Configuration**. Under **Redirect URLs**, add `exp://**` and `reviewnudge://**`.
+2. Copy `.env.example` to a new file called `.env` in the project folder and paste in your **Project URL** and **Publishable key**. `.env` never goes to GitHub.
+3. Supabase only lets you edit its emails once you use your own email sender. In **Authentication → Emails → SMTP Settings**, turn on custom SMTP with Resend: host `smtp.resend.com`, port `465`, username `resend`, password = your Resend API key, sender `onboarding@resend.dev` (until we verify our own domain, Resend only sends to the email on your Resend account).
+4. In **Authentication → Emails → Templates**, edit **Magic Link** and **Confirm signup** so the email includes the login code `{{ .Token }}` (8 digits) (the app has a box to type it in).
+5. Restart the app with `npx expo start --clear` so it picks up the keys.
+
 See `CLAUDE.md` for the project plan and working rules.
