@@ -11,7 +11,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { getAuthRedirectUrl } from '@/lib/auth-link';
 import { supabase } from '@/lib/supabase';
 
-// Log in / sign up with a magic link: the owner types their email and we email them a link.
+// Log in / sign up by email: we email the owner a link to tap and a 6-digit code to type in.
+// The code is the backup for when the link can't open the app (for example, email read on a computer).
 // New emails get an account automatically, so there's no separate sign-up screen.
 export default function SignInScreen() {
   const theme = useTheme();
@@ -20,6 +21,8 @@ export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const [code, setCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function sendLink() {
@@ -42,6 +45,30 @@ export default function SignInScreen() {
       setError(sendError.message);
     } else {
       setSentTo(trimmed);
+      setCode('');
+    }
+  }
+
+  async function verifyCode() {
+    if (!sentTo) return;
+    const digits = code.replace(/\D/g, '');
+    if (digits.length < 6) {
+      setError('Please enter the 6-digit code from the email.');
+      return;
+    }
+
+    setVerifying(true);
+    setError(null);
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email: sentTo,
+      token: digits,
+      type: 'email',
+    });
+    setVerifying(false);
+
+    // On success the app moves on to the tabs by itself.
+    if (verifyError) {
+      setError('That code didn’t work. Check it, or send yourself a new one.');
     }
   }
 
@@ -58,11 +85,29 @@ export default function SignInScreen() {
         {sentTo ? (
           <>
             <ThemedText>
-              We sent a login link to <ThemedText type="smallBold">{sentTo}</ThemedText>.
+              We sent a login email to <ThemedText type="smallBold">{sentTo}</ThemedText>.
             </ThemedText>
             <ThemedText themeColor="textSecondary">
-              Open the email on this phone and tap the link. It works once and expires in an hour.
+              Tap the link in the email on this phone, or type the code from the email here.
             </ThemedText>
+            <TextInput
+              value={code}
+              onChangeText={setCode}
+              onSubmitEditing={verifyCode}
+              placeholder="6-digit code"
+              placeholderTextColor={theme.textSecondary}
+              autoComplete="one-time-code"
+              textContentType="oneTimeCode"
+              keyboardType="number-pad"
+              returnKeyType="done"
+              maxLength={10}
+              style={[
+                styles.input,
+                styles.codeInput,
+                { color: theme.text, backgroundColor: theme.backgroundElement },
+              ]}
+            />
+            <Button title="Log in with code" onPress={verifyCode} loading={verifying} />
             <Button
               title="Use a different email"
               variant="secondary"
@@ -124,6 +169,11 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     paddingHorizontal: Spacing.three,
     fontSize: 16,
+  },
+  codeInput: {
+    fontSize: 22,
+    letterSpacing: 6,
+    textAlign: 'center',
   },
   error: {
     color: '#D93025',

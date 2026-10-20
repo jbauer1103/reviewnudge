@@ -22,6 +22,7 @@ A simple app that helps small service businesses ask customers for Google review
 
 1. In your Supabase project, go to **Authentication → URL Configuration**. Under **Redirect URLs**, add `exp://**` and `reviewnudge://**`.
 2. Copy `.env.example` to a new file called `.env` in the project folder and paste in your **Project URL** and **Publishable key**. `.env` never goes to GitHub.
-3. Restart the app with `npx expo start --clear` so it picks up the keys.
+3. In **Authentication → Emails → Templates**, edit **Magic Link** and **Confirm signup** so the email includes the 6-digit code `{{ .Token }}` (the app has a box to type it in).
+4. Restart the app with `npx expo start --clear` so it picks up the keys.
 
 See `CLAUDE.md` for the project plan and working rules.
