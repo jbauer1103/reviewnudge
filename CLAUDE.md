@@ -48,7 +48,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 
 ## Progress
 - Session 1: Expo SDK 57 app shell with three placeholder tabs (Customers, Dashboard, Settings).
-- Session 2: Supabase connected. Email log in (tap the link, or type the 6-digit code from the email) and log out. The Supabase Magic Link and Confirm signup email templates include `{{ .Token }}`. Links into Expo Go were unreliable in testing, so the code is the dependable path there. In Supabase Auth → URL Configuration, the redirect URLs `exp://**` (Expo Go) and `reviewnudge://**` (real app) are allowed. No database tables yet.
+- Session 2: Supabase connected. Email log in (tap the link, or type the 8-digit code from the email) and log out. The Supabase Magic Link and Confirm signup email templates include `{{ .Token }}`. Links into Expo Go were unreliable in testing, so the code is the dependable path there. In Supabase Auth → URL Configuration, the redirect URLs `exp://**` (Expo Go) and `reviewnudge://**` (real app) are allowed. Supabase sends auth emails through Resend (custom SMTP, sender `onboarding@resend.dev`), so for now emails only go to the Resend account email. Jeff's uwo.ca inbox holds these emails back; the code can be read in Resend → Emails → Preview. Verify a real domain in Resend before launch. No database tables yet.
 
 ## Expo technical notes
 @AGENTS.md

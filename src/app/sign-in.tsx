@@ -11,7 +11,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { getAuthRedirectUrl } from '@/lib/auth-link';
 import { supabase } from '@/lib/supabase';
 
-// Log in / sign up by email: we email the owner a link to tap and a 6-digit code to type in.
+// Log in / sign up by email: we email the owner a link to tap and a code to type in.
 // The code is the backup for when the link can't open the app (for example, email read on a computer).
 // New emails get an account automatically, so there's no separate sign-up screen.
 export default function SignInScreen() {
@@ -53,7 +53,7 @@ export default function SignInScreen() {
     if (!sentTo) return;
     const digits = code.replace(/\D/g, '');
     if (digits.length < 6) {
-      setError('Please enter the 6-digit code from the email.');
+      setError('Please enter the code from the email.');
       return;
     }
 
@@ -94,7 +94,7 @@ export default function SignInScreen() {
               value={code}
               onChangeText={setCode}
               onSubmitEditing={verifyCode}
-              placeholder="6-digit code"
+              placeholder="Code from the email"
               placeholderTextColor={theme.textSecondary}
               autoComplete="one-time-code"
               textContentType="oneTimeCode"
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   },
   codeInput: {
     fontSize: 22,
-    letterSpacing: 6,
+    letterSpacing: 4,
     textAlign: 'center',
   },
   error: {
