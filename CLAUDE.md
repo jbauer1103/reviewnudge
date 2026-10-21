@@ -59,5 +59,10 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 3: `businesses` (one per owner) and `customers` tables with row-level security, applied in Supabase. Business setup screen. Owners find their Google listing by searching by name (Places API through the find-business function; Jeff chose this over pasting). Picking a listing fills in the review link (https://search.google.com/local/writereview?placeid=...) and saves the review count at that moment in google_review_count_at_start for the Dashboard. Pasting a link still works as a fallback.
 - Session 4: Customer list with search (name, phone or email) and add / edit / delete a customer by hand. Adding from phone contacts (expo-contacts) is the next small step and needs Jeff's OK to install.
 
+## After the MVP backend works (Jeff, 2026-10-21)
+- Polished front-end redesign of the app using Claude Design.
+- A marketing landing page website (Lovable).
+These start as their own project threads once the backend is complete; tell the project coordinator when that point is reached.
+
 ## Expo technical notes
 @AGENTS.md

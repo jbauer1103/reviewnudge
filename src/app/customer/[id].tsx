@@ -11,6 +11,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { CUSTOMER_COLUMNS, type Customer } from '@/lib/customers';
 import { formatPhone, normalizePhone } from '@/lib/phone';
+import { pickContact } from '@/lib/pick-contact';
 import { supabase } from '@/lib/supabase';
 
 // Add a customer (/customer/new) or edit one (/customer/<id>).
@@ -83,6 +84,23 @@ export default function CustomerScreen() {
     router.back();
   }
 
+  async function fillFromContacts() {
+    setError(null);
+    try {
+      const picked = await pickContact();
+      if (!picked) return;
+      setName(picked.name);
+      const normalized = normalizePhone(picked.phone);
+      setPhone(normalized ? formatPhone(normalized) : picked.phone);
+      setEmail(picked.email);
+      if (!normalized) {
+        setError('This contact has no Canadian or US mobile number. Please type one in.');
+      }
+    } catch (pickError) {
+      setError(pickError instanceof Error ? pickError.message : 'Couldn’t open your contacts.');
+    }
+  }
+
   async function remove() {
     if (!confirmingDelete) {
       setConfirmingDelete(true);
@@ -115,6 +133,11 @@ export default function CustomerScreen() {
 
           {!loading && (
             <>
+              {/* The contact picker only exists on phones, not in the web version. */}
+              {isNew && Platform.OS !== 'web' && (
+                <Button title="Pick from phone contacts" variant="secondary" onPress={fillFromContacts} />
+              )}
+
               <ThemedText type="smallBold">Name</ThemedText>
               <TextInput
                 value={name}
