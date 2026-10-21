@@ -50,6 +50,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - `src/components/google-listing-search.tsx` — the search box and results on Business setup.
 - `supabase/migrations/` — database tables and row-level security, run by hand in the Supabase SQL Editor.
 - `scripts/test-login-code.mjs` — testing only: makes a login code for a second test account (needs the secret key in `.env.admin`).
+- `src/lib/ask-for-review.ts` — opens Messages (expo-sms) with the filled-in review text, then logs a row in `review_requests`. The link is the Google review link for now; later it becomes our customer web page.
 - `src/lib/phone.ts` — turns typed phone numbers into +1XXXXXXXXXX and shows them as (416) 555-1234.
 - `src/constants/theme.ts` — colors and spacing (brand green is `tint`).
 
@@ -58,6 +59,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 2: Supabase connected. Email log in (tap the link, or type the 8-digit code from the email) and log out. The Supabase Magic Link and Confirm signup email templates include `{{ .Token }}`. Links into Expo Go were unreliable in testing, so the code is the dependable path there. In Supabase Auth → URL Configuration, the redirect URLs `exp://**` (Expo Go) and `reviewnudge://**` (real app) are allowed. Supabase sends auth emails through Resend (custom SMTP, sender `onboarding@resend.dev`), so for now emails only go to the Resend account email. Jeff's uwo.ca inbox holds these emails back; the code can be read in Resend → Emails → Preview. Verify a real domain in Resend before launch.
 - Session 3: `businesses` (one per owner) and `customers` tables with row-level security, applied in Supabase. Business setup screen. Owners find their Google listing by searching by name (Places API through the find-business function; Jeff chose this over pasting). Picking a listing fills in the review link (https://search.google.com/local/writereview?placeid=...) and saves the review count at that moment in google_review_count_at_start for the Dashboard. Pasting a link still works as a fallback.
 - Session 4: Customer list with search (name, phone or email) and add / edit / delete a customer by hand. Add customer also has "Pick from phone contacts" (expo-contacts, phone only; hidden on web).
+- Session 5: "Ask for review" button on each customer. `review_requests` table (RLS: owners see and insert their own; no update/delete, the follow-up email function will use the server key). iPhone reports cancel, Android does not, so on Android every tap is logged. Customers show "✓ Asked <date>".
 
 ## After the MVP backend works (Jeff, 2026-10-21)
 - Polished front-end redesign of the app using Claude Design.

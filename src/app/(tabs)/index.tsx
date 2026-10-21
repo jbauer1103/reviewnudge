@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { askForReview } from '@/lib/ask-for-review';
 import { CUSTOMER_COLUMNS, type Customer } from '@/lib/customers';
 import { formatPhone } from '@/lib/phone';
 import { supabase } from '@/lib/supabase';
@@ -21,6 +22,10 @@ export default function CustomersScreen() {
   const [customers, setCustomers] = useState<Customer[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  // When each customer was last asked for a review, by customer id.
+  const [lastAsked, setLastAsked] = useState<Record<string, string>>({});
+  const [askingId, setAskingId] = useState<string | null>(null);
+  const [askError, setAskError] = useState<string | null>(null);
 
   // Reload every time the tab is shown, so new and edited customers appear.
   useFocusEffect(
@@ -37,11 +42,33 @@ export default function CustomersScreen() {
           setCustomers(data ?? []);
           setLoadError(error ? 'Couldn’t load your customers. Check your internet connection.' : null);
         });
+      supabase
+        .from('review_requests')
+        .select('customer_id, sent_at')
+        .eq('business_id', business.id)
+        .order('sent_at', { ascending: false })
+        .then(({ data }) => {
+          if (current) setLastAsked(latestByCustomer(data ?? []));
+        });
       return () => {
         current = false;
       };
     }, [business]),
   );
+
+  async function ask(customer: Customer) {
+    if (!business) return;
+    setAskError(null);
+    setAskingId(customer.id);
+    try {
+      if (await askForReview(business, customer)) {
+        setLastAsked((previous) => ({ ...previous, [customer.id]: new Date().toISOString() }));
+      }
+    } catch (error) {
+      setAskError(error instanceof Error ? error.message : 'Something went wrong. Try again.');
+    }
+    setAskingId(null);
+  }
 
   const query = search.trim().toLowerCase();
   const queryDigits = query.replace(/\D/g, '');
@@ -81,6 +108,11 @@ export default function CustomersScreen() {
               style={[styles.search, { color: theme.text, backgroundColor: theme.backgroundElement }]}
             />
           )}
+          {askError && (
+            <ThemedText type="small" style={styles.error}>
+              {askError}
+            </ThemedText>
+          )}
           {loadError && (
             <ThemedText type="small" style={styles.error}>
               {loadError}
@@ -106,14 +138,47 @@ export default function CustomersScreen() {
             { backgroundColor: theme.backgroundElement },
             pressed && styles.pressed,
           ]}>
-          <ThemedText type="smallBold">{item.name}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {[formatPhone(item.phone), item.email].filter(Boolean).join('  ·  ')}
-          </ThemedText>
+          <ThemedView type="backgroundElement" style={styles.rowText}>
+            <ThemedText type="smallBold">{item.name}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {[formatPhone(item.phone), item.email].filter(Boolean).join('  ·  ')}
+            </ThemedText>
+            {lastAsked[item.id] && (
+              <ThemedText type="small" themeColor="tint">
+                ✓ Asked {formatDate(lastAsked[item.id])}
+              </ThemedText>
+            )}
+          </ThemedView>
+          <Button
+            title={lastAsked[item.id] ? 'Ask again' : 'Ask for review'}
+            onPress={() => ask(item)}
+            loading={askingId === item.id}
+            disabled={askingId !== null}
+          />
         </Pressable>
       )}
     />
   );
+}
+
+// Keeps only the newest request for each customer (rows arrive newest first).
+function latestByCustomer(rows: { customer_id: string | null; sent_at: string }[]) {
+  const latest: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.customer_id && !latest[row.customer_id]) latest[row.customer_id] = row.sent_at;
+  }
+  return latest;
+}
+
+// Shows a date like "Oct 21" (or "Oct 21, 2025" for an older year) in the phone's language.
+function formatDate(iso: string) {
+  const date = new Date(iso);
+  const sameYear = date.getFullYear() === new Date().getFullYear();
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    ...(sameYear ? {} : { year: 'numeric' }),
+  });
 }
 
 const styles = StyleSheet.create({
@@ -137,6 +202,12 @@ const styles = StyleSheet.create({
   row: {
     padding: Spacing.three,
     borderRadius: Spacing.three,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
+  rowText: {
+    flex: 1,
     gap: Spacing.half,
   },
   pressed: {
