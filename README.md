@@ -35,6 +35,15 @@ The Business setup screen searches Google through our Supabase server function `
 2. Under **APIs & Services → Credentials**, create an API key and restrict it to **Places API (New)**.
 3. In Supabase, go to **Edge Functions → Secrets** and add `GOOGLE_PLACES_API_KEY` with that key. The key never goes into the app.
 
+## Publish the customer web page
+
+The page customers open from the review text lives at https://reviewnudge.expo.app/r?b=<business id>. After changing it, publish again:
+
+```bash
+npx expo export -p web
+npx eas-cli@latest deploy --prod
+```
+
 ## Log in as a second test account
 
 Our email sender only delivers to the Resend account email for now, so a second test account gets its code from a small script instead:

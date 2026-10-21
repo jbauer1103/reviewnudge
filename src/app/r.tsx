@@ -13,12 +13,13 @@ import { supabase } from '@/lib/supabase';
 
 type Page = { name: string; google_review_url: string | null };
 
-// The public page customers open from the review text (/r/<business id>). No log in.
+// The public page customers open from the review text (/r?b=<business id>). No log in.
+// The business id is in the query string so the page works on a plain static host.
 // Happy customers go to Google; unhappy ones can tell the business privately.
 export default function CustomerReviewPage() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { b: id } = useLocalSearchParams<{ b: string }>();
   const [page, setPage] = useState<Page | null | undefined>(undefined);
   const [writing, setWriting] = useState(false);
   const [message, setMessage] = useState('');
@@ -28,6 +29,7 @@ export default function CustomerReviewPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!id) return;
     supabase.rpc('get_review_page', { page_business_id: id }).then(({ data }) => {
       setPage((data as Page[] | null)?.[0] ?? null);
     });
@@ -53,6 +55,8 @@ export default function CustomerReviewPage() {
     setSent(true);
   }
 
+  // No business id in the link: show the "not found" message.
+  const shown = id ? page : null;
   const inputStyle = [styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }];
 
   return (
@@ -64,24 +68,24 @@ export default function CustomerReviewPage() {
         { paddingTop: insets.top + Spacing.six, paddingBottom: insets.bottom + Spacing.four },
       ]}>
       <ThemedView style={styles.inner}>
-        {page === undefined ? null : page === null ? (
+        {shown === undefined ? null : shown === null ? (
           <ThemedText>Sorry, we couldn’t find this page.</ThemedText>
         ) : sent ? (
           <>
             <ThemedText type="subtitle">Thank you</ThemedText>
             <ThemedText themeColor="textSecondary">
-              {page.name} got your message and will use it to do better.
+              {shown.name} got your message and will use it to do better.
             </ThemedText>
           </>
         ) : (
           <>
-            <ThemedText type="subtitle">Thanks for choosing {page.name}!</ThemedText>
+            <ThemedText type="subtitle">Thanks for choosing {shown.name}!</ThemedText>
             <ThemedText themeColor="textSecondary">How did we do?</ThemedText>
 
-            {page.google_review_url && (
+            {shown.google_review_url && (
               <Button
                 title="★  Great! Leave a Google review"
-                onPress={() => Linking.openURL(page.google_review_url!)}
+                onPress={() => Linking.openURL(shown.google_review_url!)}
               />
             )}
 

@@ -43,5 +43,5 @@ export async function askForReview(business: Business, customer: Customer): Prom
 // straight to Google. EXPO_PUBLIC_REVIEW_PAGE_URL is set in .env, e.g. https://reviewnudge.expo.app
 function reviewLink(business: Business) {
   const pageUrl = process.env.EXPO_PUBLIC_REVIEW_PAGE_URL;
-  return pageUrl ? `${pageUrl.replace(/\/$/, '')}/r/${business.id}` : business.google_review_url!;
+  return pageUrl ? `${pageUrl.replace(/\/$/, '')}/r?b=${business.id}` : business.google_review_url!;
 }

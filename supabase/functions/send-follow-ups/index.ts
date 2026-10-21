@@ -39,7 +39,7 @@ const handler = withSupabase({ auth: 'publishable' }, async (_req, ctx) => {
   let sent = 0;
   for (const request of (data ?? []) as unknown as DueRequest[]) {
     const { business, customer } = request;
-    const link = business && (pageUrl ? `${pageUrl}/r/${business.id}` : business.google_review_url);
+    const link = business && (pageUrl ? `${pageUrl}/r?b=${business.id}` : business.google_review_url);
     // Mark it done first, so a customer never gets two reminders even if sending fails.
     await ctx.supabaseAdmin
       .from('review_requests')
