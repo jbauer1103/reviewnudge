@@ -61,7 +61,11 @@ export default function BusinessSetupScreen() {
       message_template: trimmedMessage,
       // Remember the review count when a new listing is picked, for "reviews gained".
       ...(picked && picked.placeId !== business?.google_place_id
-        ? { google_review_count_at_start: picked.reviewCount }
+        ? {
+            google_review_count_at_start: picked.reviewCount,
+            google_review_count_latest: picked.reviewCount,
+            google_review_count_checked_at: new Date().toISOString(),
+          }
         : {}),
     };
     // Supabase fills in the owner from the login, and row-level security only lets

@@ -3,3 +3,7 @@
 # find-business checks the login itself (withSupabase auth: "user").
 [functions.find-business]
 verify_jwt = false
+
+# review-count checks the login itself too.
+[functions.review-count]
+verify_jwt = false
