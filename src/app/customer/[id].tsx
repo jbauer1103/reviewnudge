@@ -1,13 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 
+import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { useBusiness } from '@/components/business-provider';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { ErrorText, Screen, ScreenHeader, TextField } from '@/components/ui';
+import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { CUSTOMER_COLUMNS, type Customer } from '@/lib/customers';
 import { formatPhone, normalizePhone } from '@/lib/phone';
@@ -17,7 +16,6 @@ import { supabase } from '@/lib/supabase';
 // Add a customer (/customer/new) or edit one (/customer/<id>).
 export default function CustomerScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { business } = useBusiness();
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = id === 'new';
@@ -116,86 +114,73 @@ export default function CustomerScreen() {
     router.back();
   }
 
-  const inputStyle = [styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }];
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[styles.screen, { backgroundColor: theme.background }]}>
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={[
-          styles.content,
-          { paddingTop: insets.top + Spacing.four, paddingBottom: insets.bottom + Spacing.four },
-        ]}>
-        <ThemedView style={styles.inner}>
-          <ThemedText type="subtitle">{isNew ? 'Add customer' : 'Edit customer'}</ThemedText>
+      <Screen>
+        <BackLink title="Customers" />
+        <ScreenHeader title={isNew ? 'Add customer' : 'Edit customer'} />
 
-          {!loading && (
-            <>
-              {/* The contact picker only exists on phones, not in the web version. */}
-              {isNew && Platform.OS !== 'web' && (
-                <Button title="Pick from phone contacts" variant="secondary" onPress={fillFromContacts} />
-              )}
-
-              <ThemedText type="smallBold">Name</ThemedText>
-              <TextInput
-                value={name}
-                onChangeText={setName}
-                placeholder="Sam Taylor"
-                placeholderTextColor={theme.textSecondary}
-                autoCapitalize="words"
-                textContentType="name"
-                style={inputStyle}
+        {!loading && (
+          <>
+            {/* The contact picker only exists on phones, not in the web version. */}
+            {isNew && Platform.OS !== 'web' && (
+              <Button
+                title="Pick from phone contacts"
+                variant="secondary"
+                icon="contacts"
+                onPress={fillFromContacts}
               />
+            )}
 
-              <ThemedText type="smallBold">Mobile phone</ThemedText>
-              <TextInput
-                value={phone}
-                onChangeText={setPhone}
-                placeholder="(416) 555-1234"
-                placeholderTextColor={theme.textSecondary}
-                keyboardType="phone-pad"
-                textContentType="telephoneNumber"
-                style={inputStyle}
-              />
+            <TextField
+              label="Name"
+              value={name}
+              onChangeText={setName}
+              placeholder="Sam Taylor"
+              autoCapitalize="words"
+              textContentType="name"
+            />
+            <TextField
+              label="Mobile phone"
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="(416) 555-1234"
+              keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+            />
+            <TextField
+              label="Email"
+              labelNote="(optional)"
+              hint="We’ll send one friendly reminder email 48 hours after you ask for a review."
+              value={email}
+              onChangeText={setEmail}
+              placeholder="sam@example.com"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              textContentType="emailAddress"
+            />
 
-              <ThemedText type="smallBold">Email (optional)</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                We’ll send one friendly reminder email 48 hours after you ask for a review.
-              </ThemedText>
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="sam@example.com"
-                placeholderTextColor={theme.textSecondary}
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="email-address"
-                textContentType="emailAddress"
-                style={inputStyle}
-              />
+            <ErrorText>{error}</ErrorText>
 
-              {error && (
-                <ThemedText type="small" style={styles.error}>
-                  {error}
-                </ThemedText>
-              )}
-
+            <View style={styles.buttons}>
               <Button title={isNew ? 'Add customer' : 'Save changes'} onPress={save} loading={saving} />
-              <Button title="Cancel" variant="secondary" onPress={() => router.back()} />
-              {!isNew && (
-                <Button
-                  title={confirmingDelete ? 'Tap again to delete this customer' : 'Delete customer'}
-                  variant="secondary"
-                  onPress={remove}
-                  disabled={saving}
-                />
-              )}
-            </>
-          )}
-        </ThemedView>
-      </ScrollView>
+              <Button title="Cancel" variant="ghost" onPress={() => router.back()} />
+            </View>
+            {!isNew && (
+              <Button
+                title={confirmingDelete ? 'Tap again to delete this customer' : 'Delete customer'}
+                variant="danger"
+                onPress={remove}
+                disabled={saving}
+                style={styles.delete}
+              />
+            )}
+          </>
+        )}
+      </Screen>
     </KeyboardAvoidingView>
   );
 }
@@ -204,23 +189,11 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  content: {
-    alignItems: 'center',
-    paddingHorizontal: Spacing.four,
+  buttons: {
+    gap: Spacing.one,
+    marginTop: Spacing.two,
   },
-  inner: {
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    gap: Spacing.two,
-  },
-  input: {
-    minHeight: 48,
-    borderRadius: Spacing.three,
-    paddingHorizontal: Spacing.three,
-    fontSize: 16,
-    marginBottom: Spacing.two,
-  },
-  error: {
-    color: '#D93025',
+  delete: {
+    marginTop: Spacing.four,
   },
 });

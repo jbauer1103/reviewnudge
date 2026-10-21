@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, TextInput } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { useSession } from '@/components/session-provider';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { ErrorText, Screen, TextField } from '@/components/ui';
+import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getAuthRedirectUrl } from '@/lib/auth-link';
 import { supabase } from '@/lib/supabase';
@@ -16,7 +15,6 @@ import { supabase } from '@/lib/supabase';
 // New emails get an account automatically, so there's no separate sign-up screen.
 export default function SignInScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { linkError, clearLinkError } = useSession();
   const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
@@ -85,89 +83,91 @@ export default function SignInScreen() {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[styles.screen, { backgroundColor: theme.background }]}>
-      <ThemedView
-        style={[styles.inner, { paddingTop: insets.top + Spacing.six, paddingBottom: insets.bottom }]}>
-        <ThemedText type="subtitle">ReviewNudge</ThemedText>
+      <Screen contentInsetAdjustmentBehavior="never">
+        <View style={styles.brand}>
+          <View style={[styles.logo, { backgroundColor: theme.hero }]}>
+            <ThemedText style={styles.logoStar}>★</ThemedText>
+          </View>
+          <ThemedText type="default" style={styles.brandName}>
+            ReviewNudge
+          </ThemedText>
+        </View>
 
         {sentTo ? (
           <>
-            <ThemedText>
-              We sent a login email to <ThemedText type="smallBold">{sentTo}</ThemedText>.
-            </ThemedText>
-            <ThemedText themeColor="textSecondary">
-              Tap the link in the email on this phone, or type the code from the email here.
-            </ThemedText>
-            <TextInput
+            <View style={styles.intro}>
+              <ThemedText type="largeTitle">Check your email</ThemedText>
+              <ThemedText themeColor="textSecondary">
+                We sent a login email to <ThemedText style={styles.bold}>{sentTo}</ThemedText>. Tap the
+                link in the email on this phone, or type the code from the email here.
+              </ThemedText>
+            </View>
+            <TextField
+              label="Code from the email"
               value={code}
               onChangeText={setCode}
               onSubmitEditing={verifyCode}
-              placeholder="Code from the email"
-              placeholderTextColor={theme.textSecondary}
+              placeholder="12345678"
               autoComplete="one-time-code"
               textContentType="oneTimeCode"
               keyboardType="number-pad"
               returnKeyType="done"
               maxLength={10}
-              style={[
-                styles.input,
-                styles.codeInput,
-                { color: theme.text, backgroundColor: theme.backgroundElement },
-              ]}
+              style={styles.codeInput}
             />
-            <Button title="Log in with code" onPress={verifyCode} loading={verifying} />
-            <Button
-              title="Use a different email"
-              variant="secondary"
-              onPress={() => {
-                setSentTo(null);
-                setError(null);
-              }}
-            />
+            <ErrorText>{message}</ErrorText>
+            <View style={styles.buttons}>
+              <Button title="Log in with code" onPress={verifyCode} loading={verifying} />
+              <Button
+                title="Use a different email"
+                variant="ghost"
+                onPress={() => {
+                  setSentTo(null);
+                  setError(null);
+                }}
+              />
+            </View>
           </>
         ) : (
           <>
-            <ThemedText themeColor="textSecondary">
-              Enter your email and we&apos;ll send you a link to log in. No password needed.
-            </ThemedText>
-            <TextInput
+            <View style={styles.intro}>
+              <ThemedText type="largeTitle">More Google reviews, one tap at a time.</ThemedText>
+              <ThemedText themeColor="textSecondary">
+                Enter your email and we&apos;ll send you a link to log in. No password needed.
+              </ThemedText>
+            </View>
+            <TextField
+              label="Email"
               value={email}
               onChangeText={setEmail}
               onSubmitEditing={sendLink}
               placeholder="you@yourbusiness.com"
-              placeholderTextColor={theme.textSecondary}
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect={false}
               keyboardType="email-address"
               textContentType="emailAddress"
               returnKeyType="send"
-              style={[
-                styles.input,
-                { color: theme.text, backgroundColor: theme.backgroundElement },
-              ]}
             />
-            <Button title="Email me a login link" onPress={sendLink} loading={sending} />
-            <Button
-              title="I already have a code"
-              variant="secondary"
-              onPress={() => {
-                const trimmed = checkedEmail();
-                if (!trimmed) return;
-                setError(null);
-                clearLinkError();
-                setSentTo(trimmed);
-                setCode('');
-              }}
-            />
+            <ErrorText>{message}</ErrorText>
+            <View style={styles.buttons}>
+              <Button title="Email me a login link" onPress={sendLink} loading={sending} />
+              <Button
+                title="I already have a code"
+                variant="ghost"
+                onPress={() => {
+                  const trimmed = checkedEmail();
+                  if (!trimmed) return;
+                  setError(null);
+                  clearLinkError();
+                  setSentTo(trimmed);
+                  setCode('');
+                }}
+              />
+            </View>
           </>
         )}
-
-        {message && (
-          <ThemedText type="small" style={styles.error}>
-            {message}
-          </ThemedText>
-        )}
-      </ThemedView>
+      </Screen>
     </KeyboardAvoidingView>
   );
 }
@@ -175,26 +175,44 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  brand: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.two + Spacing.half,
+    marginTop: Spacing.five,
+    marginBottom: Spacing.three,
   },
-  inner: {
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.three,
+  logo: {
+    width: 44,
+    height: 44,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  input: {
-    minHeight: 48,
-    borderRadius: Spacing.three,
-    paddingHorizontal: Spacing.three,
-    fontSize: 16,
+  logoStar: {
+    color: '#FFD166',
+    fontSize: 24,
+    lineHeight: 28,
+  },
+  brandName: {
+    fontSize: 20,
+    fontWeight: 800,
+  },
+  intro: {
+    gap: Spacing.two + Spacing.half,
+    marginBottom: Spacing.two,
+  },
+  bold: {
+    fontWeight: 700,
   },
   codeInput: {
     fontSize: 22,
     letterSpacing: 4,
     textAlign: 'center',
   },
-  error: {
-    color: '#D93025',
+  buttons: {
+    gap: Spacing.one,
+    marginTop: Spacing.two,
   },
 });
