@@ -11,3 +11,7 @@ verify_jwt = false
 # delete-account checks the login itself too.
 [functions.delete-account]
 verify_jwt = false
+
+# send-follow-ups is called every hour by the database (pg_cron) with the publishable key.
+[functions.send-follow-ups]
+verify_jwt = false
