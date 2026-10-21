@@ -18,6 +18,8 @@ type Stats = {
   reviewsAtStart: number | null;
   /** Google review count now (checked by our review-count server function). */
   reviewsNow: number | null;
+  /** Newest private feedback from the customer page. */
+  feedback: { id: string; message: string; contact: string | null; created_at: string }[];
 };
 
 export default function DashboardScreen() {
@@ -34,7 +36,7 @@ export default function DashboardScreen() {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const [total, thisMonth, start, now] = await Promise.all([
+    const [total, thisMonth, start, now, feedback] = await Promise.all([
       supabase
         .from('review_requests')
         .select('id', { count: 'exact', head: true })
@@ -50,6 +52,12 @@ export default function DashboardScreen() {
         .eq('id', business.id)
         .single(),
       supabase.functions.invoke<{ reviewCount: number | null }>('review-count'),
+      supabase
+        .from('feedback')
+        .select('id, message, contact, created_at')
+        .eq('business_id', business.id)
+        .order('created_at', { ascending: false })
+        .limit(10),
     ]);
 
     if (total.error || thisMonth.error) {
@@ -62,6 +70,7 @@ export default function DashboardScreen() {
       requestsThisMonth: thisMonth.count ?? 0,
       reviewsAtStart: start.data?.google_review_count_at_start ?? null,
       reviewsNow: now.data?.reviewCount ?? null,
+      feedback: feedback.data ?? [],
     });
   }, [business]);
 
@@ -133,6 +142,28 @@ export default function DashboardScreen() {
           )}
         </ThemedView>
 
+        <ThemedView type="backgroundElement" style={styles.card}>
+          <ThemedText type="small" themeColor="textSecondary">
+            Private feedback from customers
+          </ThemedText>
+          {stats?.feedback.length ? (
+            stats.feedback.map((item) => (
+              <ThemedView key={item.id} type="backgroundElement" style={styles.feedback}>
+                <ThemedText type="small">{item.message}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {[new Date(item.created_at).toLocaleDateString(), item.contact]
+                    .filter(Boolean)
+                    .join('  ·  ')}
+                </ThemedText>
+              </ThemedView>
+            ))
+          ) : (
+            <ThemedText type="small">
+              None yet. Unhappy customers can tell you privately here instead of on Google.
+            </ThemedText>
+          )}
+        </ThemedView>
+
         {error && (
           <ThemedText type="small" style={styles.error}>
             {error}
@@ -161,6 +192,10 @@ const styles = StyleSheet.create({
     padding: Spacing.four,
     borderRadius: Spacing.three,
     gap: Spacing.one,
+  },
+  feedback: {
+    marginTop: Spacing.two,
+    gap: Spacing.half,
   },
   error: {
     color: '#D93025',

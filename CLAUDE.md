@@ -49,6 +49,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - `supabase/functions/find-business/` — server function that searches Google Places by business name (needs the Supabase secret `GOOGLE_PLACES_API_KEY`). Deployed from the Supabase dashboard editor; "Verify JWT with legacy secret" is off because the function checks the login itself.
 - `supabase/functions/review-count/` — returns the owner's current Google review count for the Dashboard. Saves it on the business and only asks Google again after 6 hours (Google charges per lookup). Legacy JWT check is off; it checks the login itself.
 - `supabase/functions/delete-account/` — deletes the caller's login; the database cascades to their business, customers and review requests. Used by Settings → Delete account (two taps).
+- `src/app/r/[id].tsx` — the public customer page (no log in): "Leave a Google review" or "Tell us privately". Reads data only through the `get_review_page` and `submit_feedback` database functions; private feedback lands in the `feedback` table and shows on the Dashboard. Review texts link here once `EXPO_PUBLIC_REVIEW_PAGE_URL` is set in .env; until then they link straight to Google.
 - `src/components/google-listing-search.tsx` — the search box and results on Business setup.
 - `supabase/migrations/` — database tables and row-level security, run by hand in the Supabase SQL Editor.
 - `scripts/test-login-code.mjs` — testing only: makes a login code for a second test account (needs the secret key in `.env.admin`).
@@ -64,6 +65,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 5: "Ask for review" button on each customer. `review_requests` table (RLS: owners see and insert their own; no update/delete, the follow-up email function will use the server key). iPhone reports cancel, Android does not, so on Android every tap is logged. Customers show "✓ Asked <date>".
 - Session 6: Dashboard with review requests sent (total and this month) and Google reviews gained since joining (latest count minus google_review_count_at_start). Pull down to refresh.
 - Session 7: Settings → Delete account (confirm step), tested on a throwaway account.
+- Session 8: customer page and private feedback (built, security-tested, web export builds). Publishing it on Expo (EAS Hosting) waits for Jeff's OK.
 
 ## After the MVP backend works (Jeff, 2026-10-21)
 - Polished front-end redesign of the app using Claude Design.

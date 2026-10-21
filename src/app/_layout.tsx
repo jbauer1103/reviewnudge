@@ -58,6 +58,8 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      {/* The public page customers open from the review text. No log in needed. */}
+      <Stack.Screen name="r/[id]" />
       <Stack.Protected guard={!!session && !!business}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="customer/[id]" />
