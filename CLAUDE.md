@@ -57,6 +57,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - `src/lib/ask-for-review.ts` — opens Messages (expo-sms) with the filled-in review text, then logs a row in `review_requests`. The link is the Google review link for now; later it becomes our customer web page.
 - `src/lib/phone.ts` — turns typed phone numbers into +1XXXXXXXXXX and shows them as (416) 555-1234.
 - `src/constants/theme.ts` — colors and spacing (brand green is `tint`).
+- `public/landing.html` — the marketing landing page (plain HTML, hand-built instead of Lovable so it lives in the repo). Expo copies `public/` into the web export, so it goes live at https://reviewnudge.expo.app/landing.html with the normal web redeploy. Its "Get started" buttons go to /sign-in.
 
 ## Progress
 - Session 1: Expo SDK 57 app shell with three placeholder tabs (Customers, Dashboard, Settings).
@@ -68,6 +69,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 7: Settings → Delete account (confirm step), tested on a throwaway account.
 - Session 8: customer page and private feedback. Published with EAS Hosting at https://reviewnudge.expo.app (Expo project @jbauer1103/reviewnudge); the page is /r?b=<business id> because static hosting does not serve dynamic routes. EXPO_PUBLIC_REVIEW_PAGE_URL in .env and the REVIEW_PAGE_URL function secret point texts and emails at it. Redeploy the web version with: npx expo export -p web && npx eas-cli@latest deploy --prod
 - Session 9: 48-hour follow-up email deployed, scheduled hourly, RESEND_API_KEY saved, test email to Jeff worked. Jeff has no domain yet (2026-10-21): until one is verified in Resend, follow-ups only reach jbauer7@uwo.ca.
+- Landing page (2026-10-21): `public/landing.html` written. Goes live with the next web redeploy. Before real customers sign up from it, a domain must be verified in Resend (log in emails only reach Jeff today) and Stripe billing added.
 
 ## After the MVP backend works (Jeff, 2026-10-21)
 - Polished front-end redesign of the app using Claude Design.
