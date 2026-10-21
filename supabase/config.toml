@@ -7,3 +7,7 @@ verify_jwt = false
 # review-count checks the login itself too.
 [functions.review-count]
 verify_jwt = false
+
+# delete-account checks the login itself too.
+[functions.delete-account]
+verify_jwt = false

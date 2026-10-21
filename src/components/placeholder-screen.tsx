@@ -43,18 +43,20 @@ export function PlaceholderScreen({
         <ThemedText type="subtitle">{title}</ThemedText>
         <ThemedText themeColor="textSecondary">{description}</ThemedText>
 
-        <ThemedView type="backgroundElement" style={styles.card}>
-          <ThemedView type="tintSoft" style={styles.badge}>
-            <ThemedText type="smallBold" themeColor="tint">
-              {badge}
-            </ThemedText>
+        {comingSoon.length > 0 && (
+          <ThemedView type="backgroundElement" style={styles.card}>
+            <ThemedView type="tintSoft" style={styles.badge}>
+              <ThemedText type="smallBold" themeColor="tint">
+                {badge}
+              </ThemedText>
+            </ThemedView>
+            {comingSoon.map((item) => (
+              <ThemedText key={item} type="small" style={styles.item}>
+                {'•'}  {item}
+              </ThemedText>
+            ))}
           </ThemedView>
-          {comingSoon.map((item) => (
-            <ThemedText key={item} type="small" style={styles.item}>
-              {'•'}  {item}
-            </ThemedText>
-          ))}
-        </ThemedView>
+        )}
 
         {children}
       </ThemedView>
