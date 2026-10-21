@@ -7,6 +7,7 @@ export type Business = {
   id: string;
   name: string;
   google_review_url: string | null;
+  google_place_id: string | null;
   message_template: string;
 };
 
@@ -35,7 +36,7 @@ export function useBusiness() {
 async function fetchBusiness(userId: string): Promise<Loaded> {
   const { data, error } = await supabase
     .from('businesses')
-    .select('id, name, google_review_url, message_template')
+    .select('id, name, google_review_url, google_place_id, message_template')
     .eq('owner_id', userId)
     .maybeSingle();
   return { userId, business: data, error: error ? error.message : null };

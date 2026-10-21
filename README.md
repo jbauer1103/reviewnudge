@@ -27,6 +27,14 @@ A simple app that helps small service businesses ask customers for Google review
 5. In **SQL Editor**, run each file in `supabase/migrations/` once, oldest first. This creates the tables and their security rules.
 6. Restart the app with `npx expo start --clear` so it picks up the keys.
 
+## Google listing search (one time)
+
+The Business setup screen searches Google through our Supabase server function `find-business` (code in `supabase/functions/find-business/`).
+
+1. In [Google Cloud Console](https://console.cloud.google.com), create a project, turn on billing, and enable **Places API (New)**.
+2. Under **APIs & Services → Credentials**, create an API key and restrict it to **Places API (New)**.
+3. In Supabase, go to **Edge Functions → Secrets** and add `GOOGLE_PLACES_API_KEY` with that key. The key never goes into the app.
+
 ## Log in as a second test account
 
 Our email sender only delivers to the Resend account email for now, so a second test account gets its code from a small script instead:

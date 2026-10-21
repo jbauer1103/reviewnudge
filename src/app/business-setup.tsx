@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { useBusiness } from '@/components/business-provider';
+import { GoogleListingSearch, type GoogleListing } from '@/components/google-listing-search';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -25,6 +26,10 @@ export default function BusinessSetupScreen() {
 
   const [name, setName] = useState(business?.name ?? '');
   const [reviewUrl, setReviewUrl] = useState(business?.google_review_url ?? '');
+  const [placeId, setPlaceId] = useState(business?.google_place_id ?? null);
+  // The listing picked from Google search on this visit to the screen.
+  const [picked, setPicked] = useState<GoogleListing | null>(null);
+  const [searchingAgain, setSearchingAgain] = useState(false);
   const [message, setMessage] = useState(business?.message_template ?? DEFAULT_MESSAGE);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +57,12 @@ export default function BusinessSetupScreen() {
     const values = {
       name: trimmedName,
       google_review_url: trimmedUrl || null,
+      google_place_id: placeId,
       message_template: trimmedMessage,
+      // Remember the review count when a new listing is picked, for "reviews gained".
+      ...(picked && picked.placeId !== business?.google_place_id
+        ? { google_review_count_at_start: picked.reviewCount }
+        : {}),
     };
     // Supabase fills in the owner from the login, and row-level security only lets
     // the owner change their own business.
@@ -116,14 +126,55 @@ export default function BusinessSetupScreen() {
             style={inputStyle}
           />
 
+          <ThemedText type="smallBold">Your Google listing</ThemedText>
+          {placeId && !searchingAgain ? (
+            <ThemedView type="backgroundElement" style={styles.preview}>
+              <ThemedText type="smallBold">{picked?.name ?? name}</ThemedText>
+              {picked && (
+                <ThemedText type="small" themeColor="textSecondary">
+                  {picked.address}
+                </ThemedText>
+              )}
+              <ThemedText type="small" themeColor="tint">
+                ✓ Linked to your Google listing
+              </ThemedText>
+              <Button
+                title="Pick a different listing"
+                variant="secondary"
+                onPress={() => setSearchingAgain(true)}
+              />
+            </ThemedView>
+          ) : (
+            <>
+              <ThemedText type="small" themeColor="textSecondary">
+                Search for your business and tap it, so customers go straight to your review box.
+              </ThemedText>
+              <GoogleListingSearch
+                initialQuery={name}
+                onPick={(listing) => {
+                  setPicked(listing);
+                  setPlaceId(listing.placeId);
+                  setReviewUrl(listing.reviewUrl);
+                  setSearchingAgain(false);
+                  if (!name.trim()) setName(listing.name);
+                }}
+              />
+            </>
+          )}
+
           <ThemedText type="smallBold">Google review link</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            Search for your business on Google, tap “Ask for reviews” (or “Share review form”) on
-            your listing, and paste the link here.
+            Filled in when you pick your listing. Can’t find it? On Google, tap “Ask for reviews” on
+            your listing and paste that link here.
           </ThemedText>
           <TextInput
             value={reviewUrl}
-            onChangeText={setReviewUrl}
+            onChangeText={(text) => {
+              setReviewUrl(text);
+              // A pasted link may be for a different listing than the one picked.
+              setPlaceId(null);
+              setPicked(null);
+            }}
             placeholder="https://g.page/r/..."
             placeholderTextColor={theme.textSecondary}
             autoCapitalize="none"

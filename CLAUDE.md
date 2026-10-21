@@ -45,6 +45,8 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - `src/app/business-setup.tsx` — Business setup (name, Google review link, review text). Shown after the first log in until a business is saved, and from Settings → Edit business details.
 - `src/components/` — reusable pieces. `business-provider.tsx` loads the owner's business. `app-tabs.tsx` is the phone tab bar, `app-tabs.web.tsx` the browser one. `session-provider.tsx` tracks who is logged in and reads the login link.
 - `src/lib/supabase.ts` — the Supabase connection. Keys come from `.env` (see `.env.example`), never committed.
+- `supabase/functions/find-business/` — server function that searches Google Places by business name (needs the Supabase secret `GOOGLE_PLACES_API_KEY`). Deployed from the Supabase dashboard editor; "Verify JWT with legacy secret" is off because the function checks the login itself.
+- `src/components/google-listing-search.tsx` — the search box and results on Business setup.
 - `supabase/migrations/` — database tables and row-level security, run by hand in the Supabase SQL Editor.
 - `scripts/test-login-code.mjs` — testing only: makes a login code for a second test account (needs the secret key in `.env.admin`).
 - `src/constants/theme.ts` — colors and spacing (brand green is `tint`).
@@ -52,7 +54,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 ## Progress
 - Session 1: Expo SDK 57 app shell with three placeholder tabs (Customers, Dashboard, Settings).
 - Session 2: Supabase connected. Email log in (tap the link, or type the 8-digit code from the email) and log out. The Supabase Magic Link and Confirm signup email templates include `{{ .Token }}`. Links into Expo Go were unreliable in testing, so the code is the dependable path there. In Supabase Auth → URL Configuration, the redirect URLs `exp://**` (Expo Go) and `reviewnudge://**` (real app) are allowed. Supabase sends auth emails through Resend (custom SMTP, sender `onboarding@resend.dev`), so for now emails only go to the Resend account email. Jeff's uwo.ca inbox holds these emails back; the code can be read in Resend → Emails → Preview. Verify a real domain in Resend before launch.
-- Session 3: `businesses` (one per owner) and `customers` tables with row-level security, applied in Supabase. Business setup screen. The Google review link is pasted in by hand for now; a Places API lookup is a later step.
+- Session 3: `businesses` (one per owner) and `customers` tables with row-level security, applied in Supabase. Business setup screen. Owners find their Google listing by searching by name (Places API through the find-business function; Jeff chose this over pasting). Picking a listing fills in the review link (https://search.google.com/local/writereview?placeid=...) and saves the review count at that moment in google_review_count_at_start for the Dashboard. Pasting a link still works as a fallback.
 
 ## Expo technical notes
 @AGENTS.md
