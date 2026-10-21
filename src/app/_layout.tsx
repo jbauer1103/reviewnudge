@@ -3,6 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
+import { BusinessProvider, useBusiness } from '@/components/business-provider';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { SessionProvider, useSession } from '@/components/session-provider';
 import { isSupabaseConfigured } from '@/lib/supabase';
@@ -15,19 +16,24 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <SessionProvider>
-        <RootNavigator />
+        <BusinessProvider>
+          <RootNavigator />
+        </BusinessProvider>
       </SessionProvider>
     </ThemeProvider>
   );
 }
 
-// Logged in: show the tabs. Logged out: show only the log in screens.
+// Logged out: show only the log in screens. Logged in without a business yet: show
+// Business setup. Logged in with a business: show the tabs.
 function RootNavigator() {
   const { session, isLoading } = useSession();
+  const { business, isLoading: businessLoading } = useBusiness();
+  const loading = isLoading || (!!session && businessLoading);
 
   useEffect(() => {
-    if (!isLoading) SplashScreen.hide();
-  }, [isLoading]);
+    if (!loading) SplashScreen.hide();
+  }, [loading]);
 
   if (!isSupabaseConfigured) {
     return (
@@ -44,16 +50,19 @@ function RootNavigator() {
     );
   }
 
-  // Wait for the saved login so the app doesn't flash the log in screen (or lose the
-  // screen a link pointed to). The splash screen stays up meanwhile.
-  if (isLoading) {
+  // Wait for the saved login (and the business) so the app doesn't flash the wrong
+  // screen (or lose the screen a link pointed to). The splash screen stays up meanwhile.
+  if (loading) {
     return null;
   }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!session}>
+      <Stack.Protected guard={!!session && !!business}>
         <Stack.Screen name="(tabs)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="business-setup" />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="sign-in" />

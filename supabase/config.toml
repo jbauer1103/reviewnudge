@@ -1,0 +1,5 @@
+# Settings for Supabase server functions (also set in the Supabase dashboard).
+
+# find-business checks the login itself (withSupabase auth: "user").
+[functions.find-business]
+verify_jwt = false

@@ -25,12 +25,19 @@ export default function SignInScreen() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function sendLink() {
+  // The email typed in, or null (with a message) if it doesn't look like an email.
+  function checkedEmail() {
     const trimmed = email.trim().toLowerCase();
     if (!/^\S+@\S+\.\S+$/.test(trimmed)) {
       setError('Please enter a valid email address.');
-      return;
+      return null;
     }
+    return trimmed;
+  }
+
+  async function sendLink() {
+    const trimmed = checkedEmail();
+    if (!trimmed) return;
 
     setSending(true);
     setError(null);
@@ -140,6 +147,18 @@ export default function SignInScreen() {
               ]}
             />
             <Button title="Email me a login link" onPress={sendLink} loading={sending} />
+            <Button
+              title="I already have a code"
+              variant="secondary"
+              onPress={() => {
+                const trimmed = checkedEmail();
+                if (!trimmed) return;
+                setError(null);
+                clearLinkError();
+                setSentTo(trimmed);
+                setCode('');
+              }}
+            />
           </>
         )}
 
