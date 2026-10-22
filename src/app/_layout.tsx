@@ -69,6 +69,8 @@ function RootNavigator() {
         <Stack.Screen name="sign-in" />
         <Stack.Screen name="auth-callback" />
       </Stack.Protected>
+      {/* Where Stripe sends owners back after paying. No log in needed. */}
+      <Stack.Screen name="billing" />
       {/* The public page customers open from the review text. No log in needed.
           It must stay last: the first screen listed is where the app opens. */}
       <Stack.Screen name="r" />

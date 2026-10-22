@@ -15,3 +15,14 @@ verify_jwt = false
 # send-follow-ups is called every hour by the database (pg_cron) with the publishable key.
 [functions.send-follow-ups]
 verify_jwt = false
+
+# create-checkout and billing-portal check the login themselves.
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.billing-portal]
+verify_jwt = false
+
+# stripe-webhook is called by Stripe, and checks Stripe's signature itself.
+[functions.stripe-webhook]
+verify_jwt = false
