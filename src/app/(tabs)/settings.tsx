@@ -115,7 +115,7 @@ export default function SettingsScreen() {
               <>
                 <Divider />
                 <Row
-                  title={plan.kind === 'paid' ? 'Manage billing' : `Subscribe: ${PRICE_LABEL}`}
+                  title={plan.kind === 'paid' ? 'Manage billing' : `Subscribe (${PRICE_LABEL})`}
                   color={plan.kind === 'paid' ? undefined : theme.tint}
                   chevron={plan.kind === 'paid'}
                   onPress={billing}
@@ -184,10 +184,10 @@ function describePlan(plan: Plan) {
       if (plan.status === 'past_due') {
         return 'Your last payment didn’t go through. Please update your card.';
       }
-      if (!plan.renewsAt) return `Subscribed: ${PRICE_LABEL}.`;
+      if (!plan.renewsAt) return 'Subscribed.';
       return plan.cancelling
         ? `Subscription cancelled. You can keep using the app until ${formatDate(plan.renewsAt)}.`
-        : `Subscribed: ${PRICE_LABEL}. Renews ${formatDate(plan.renewsAt)}.`;
+        : `Subscribed. Renews ${formatDate(plan.renewsAt)}.`;
   }
 }
 

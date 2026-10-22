@@ -1,4 +1,4 @@
-// Starts a Stripe Checkout page where the logged-in owner subscribes ($39 a month).
+// Starts a Stripe Checkout page where the logged-in owner subscribes ($39 CAD or $29 USD a month).
 // Returns { url } for the app to open. Days left in the free trial carry over, so
 // subscribing early never costs extra. Needs the secret STRIPE_SECRET_KEY.
 // Optional secrets: PRODUCT_NAME (what Stripe calls the plan) and SITE_URL.
@@ -9,12 +9,13 @@ import { corsHeaders, ensureWebhook, json, siteUrl, stripe } from '../_shared/st
 
 // Keep in sync with TRIAL_DAYS in src/lib/billing.ts.
 const TRIAL_DAYS = 14;
-// Stripe finds our price by this name, so it's only created once.
-const PRICE_LOOKUP_KEY = 'monthly_39';
+// Stripe finds our price by this name, so it's only created once. A new price needs a
+// new name (Stripe prices can't be edited); people already subscribed keep their old price.
+const PRICE_LOOKUP_KEY = 'monthly_39cad_29usd';
 // Stripe only accepts a trial end at least 2 days away.
 const MIN_TRIAL_MS = 49 * 3600 * 1000;
 
-// Our $39/month price: Canadian dollars, or US dollars for US customers.
+// Our monthly price: $39 in Canadian dollars, or $29 in US dollars for US customers.
 async function monthlyPrice(): Promise<string> {
   const found = await stripe('GET', 'prices', { 'lookup_keys[]': PRICE_LOOKUP_KEY, active: true, limit: 1 });
   if (found.data.length > 0) return found.data[0].id;
@@ -22,7 +23,7 @@ async function monthlyPrice(): Promise<string> {
     lookup_key: PRICE_LOOKUP_KEY,
     currency: 'cad',
     unit_amount: 3900,
-    currency_options: { usd: { unit_amount: 3900 } },
+    currency_options: { usd: { unit_amount: 2900 } },
     recurring: { interval: 'month' },
     product_data: { name: Deno.env.get('PRODUCT_NAME') ?? 'ReviewWhistle' },
   });
