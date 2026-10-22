@@ -27,7 +27,12 @@ export default function CustomerReviewPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    // The page is built ahead of time without a link, so wait until it's open in the
+    // customer's browser before deciding the link has no business id.
+    if (!id) {
+      Promise.resolve().then(() => setPage(null));
+      return;
+    }
     supabase.rpc('get_review_page', { page_business_id: id }).then(({ data }) => {
       setPage((data as Page[] | null)?.[0] ?? null);
     });
@@ -53,8 +58,7 @@ export default function CustomerReviewPage() {
     setSent(true);
   }
 
-  // No business id in the link: show the "not found" message.
-  const shown = id ? page : null;
+  const shown = page;
 
   return (
     <Screen maxWidth={520} contentContainerStyle={styles.content}>

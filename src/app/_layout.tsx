@@ -69,8 +69,6 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* The public page customers open from the review text. No log in needed. */}
-      <Stack.Screen name="r" />
       <Stack.Protected guard={!!session && !!business}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="customer/[id]" />
@@ -82,6 +80,9 @@ function RootNavigator() {
         <Stack.Screen name="sign-in" />
         <Stack.Screen name="auth-callback" />
       </Stack.Protected>
+      {/* The public page customers open from the review text. No log in needed.
+          It must stay last: the first screen listed is where the app opens. */}
+      <Stack.Screen name="r" />
     </Stack>
   );
 }
