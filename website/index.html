@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="ReviewWhistle">
+<meta property="og:description" content="One tap after the job sends a friendly Google review text from your own phone.">
+<meta property="og:url" content="https://reviewwhistle.com/">
+<title>ReviewWhistle</title>
+<link rel="icon" href="/favicon.png">
+<meta name="description" content="ReviewWhistle helps cleaners, plumbers, HVAC techs, detailers and groomers get more Google reviews. One tap after the job sends a friendly review text from your own phone.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a work-van clipboard. Big plain headline beside the real text message, then the job's actual timeline, then the two screens customers and owners see. */
+:root {
+  --bg: #F6F8F7;
+  --surface: #FFFFFF;
+  --ink: #0E1A16;
+  --muted: #55625D;
+  --line: #DCE4E0;
+  --green: #0F7B5F;
+  --green-soft: #E7F5EF;
+  --on-green: #FFFFFF;
+  --bubble: #1F8A5B;
+  --bubble-in: #E9ECEB;
+  --star: #E8A317;
+  --display: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1210; --surface: #121C19; --ink: #EAF2EE; --muted: #9FB0A9; --line: #24332E;
+    --green: #3DD6A3; --green-soft: #12302A; --on-green: #062019; --bubble: #23A06A; --bubble-in: #26302D; --star: #F2B634;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1210; --surface: #121C19; --ink: #EAF2EE; --muted: #9FB0A9; --line: #24332E;
+  --green: #3DD6A3; --green-soft: #12302A; --on-green: #062019; --bubble: #23A06A; --bubble-in: #26302D; --star: #F2B634;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--body); font-size: 1.0625rem; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 68rem; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.08; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h1 { font-size: clamp(2.4rem, 6vw, 4.1rem); font-weight: 700; }
+h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); font-weight: 700; }
+h3 { font-size: 1.25rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--green); }
+.label {
+  font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green);
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--green); color: var(--on-green); text-decoration: none;
+  font-weight: 600; font-size: 1.05rem; padding: 0.85rem 1.4rem; border-radius: 999px;
+  transition: transform .15s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+
+/* Header */
+header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 1.25rem; }
+.logo { display: flex; align-items: center; gap: 0.55rem; font-family: var(--display); font-weight: 700; font-size: 1.3rem; color: var(--ink); text-decoration: none; }
+.logo-mark { width: 30px; height: 30px; border-radius: 9px; background: var(--green); display: grid; place-items: center; color: var(--on-green); font-size: 1rem; }
+header nav { display: flex; gap: 1.5rem; align-items: center; }
+header nav a.text { color: var(--muted); text-decoration: none; font-weight: 500; }
+header nav a.text:hover { color: var(--ink); }
+header .btn { padding: 0.55rem 1.05rem; font-size: 0.95rem; }
+
+/* Hero */
+.hero .wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 3rem; align-items: center; padding-block: 3rem 4.5rem; }
+.hero-copy { display: flex; flex-direction: column; gap: 1.4rem; min-width: 0; }
+.hero-copy h1 em { font-style: normal; color: var(--green); }
+.lede { font-size: 1.2rem; color: var(--muted); max-width: 34rem; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.fineprint { font-size: 0.9rem; color: var(--muted); }
+.trades { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.trades span { font-size: 0.85rem; padding: 0.3rem 0.75rem; border-radius: 999px; background: var(--green-soft); color: var(--ink); }
+
+/* Phone */
+.phone {
+  justify-self: center; width: 100%; max-width: 330px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 38px;
+  padding: 1rem 0.9rem 1.2rem; box-shadow: 0 30px 60px -30px rgba(14, 26, 22, 0.35);
+}
+.phone-top { text-align: center; padding-bottom: 0.8rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--bubble-in); margin: 0.3rem auto 0.3rem; display: grid; place-items: center; font-weight: 600; color: var(--muted); }
+.phone-top small { font-size: 0.8rem; color: var(--muted); }
+.thread { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.93rem; line-height: 1.4; }
+.stamp { text-align: center; font-size: 0.72rem; color: var(--muted); }
+.bubble { max-width: 86%; padding: 0.6rem 0.85rem; border-radius: 18px; }
+.bubble.out { align-self: flex-end; background: var(--bubble); color: #fff; border-bottom-right-radius: 5px; }
+.bubble.in { align-self: flex-start; background: var(--bubble-in); color: var(--ink); border-bottom-left-radius: 5px; }
+.bubble .link { text-decoration: underline; word-break: break-all; }
+.receipt { align-self: flex-end; font-size: 0.72rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .bubble.in, .receipt.late { animation: pop .5s ease both; }
+  .receipt.late { animation-delay: 1.2s; }
+  .bubble.in { animation-delay: 1.9s; }
+  @keyframes pop { from { opacity: .0001; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+
+/* Sections */
+section.band { padding-block: 4.5rem; border-top: 1px solid var(--line); }
+.section-head { display: flex; flex-direction: column; gap: 0.75rem; max-width: 42rem; margin-bottom: 2.5rem; }
+.section-head p { color: var(--muted); font-size: 1.1rem; }
+
+/* Timeline: a real sequence, so it is numbered by time, not 01/02/03 */
+.timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; position: relative; }
+.step { display: flex; flex-direction: column; gap: 0.6rem; padding-top: 1.4rem; border-top: 3px solid var(--green); min-width: 0; }
+.step .when { font-family: var(--mono); font-size: 0.8rem; color: var(--green); }
+.step p { color: var(--muted); font-size: 0.98rem; }
+
+/* Two screens */
+.screens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
+.screen { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 1.6rem; display: flex; flex-direction: column; gap: 1rem; }
+.panel .biz { font-family: var(--display); font-size: 1.35rem; font-weight: 700; text-align: center; }
+.panel .ask { text-align: center; color: var(--muted); }
+.choice { display: block; text-align: center; padding: 0.85rem 1rem; border-radius: 12px; font-weight: 600; }
+.choice.google { background: var(--green); color: var(--on-green); }
+.choice.private { border: 1.5px solid var(--line); color: var(--ink); }
+.stars { color: var(--star); letter-spacing: 0.1em; }
+.screen > p { color: var(--muted); }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.stat { background: var(--bg); border-radius: 14px; padding: 1rem; display: flex; flex-direction: column; gap: 0.2rem; }
+.stat b { font-family: var(--display); font-size: 2.2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat b.up { color: var(--green); }
+.stat span { font-size: 0.85rem; color: var(--muted); }
+.example-tag { align-self: flex-start; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border: 1px dashed var(--line); border-radius: 6px; padding: 0.15rem 0.45rem; }
+.feedback-row { display: flex; flex-direction: column; gap: 0.25rem; border-top: 1px solid var(--line); padding-top: 0.9rem; font-size: 0.93rem; }
+.feedback-row small { color: var(--muted); }
+
+/* Why list */
+.why { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem 2.5rem; }
+.why div { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+.why p { color: var(--muted); }
+
+/* Pricing */
+.pricing .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+.price-card { background: var(--surface); border: 2px solid var(--green); border-radius: 24px; padding: 2rem; display: flex; flex-direction: column; gap: 1.2rem; }
+.price { display: flex; align-items: baseline; gap: 0.4rem; }
+.price b { font-family: var(--display); font-size: 3.6rem; line-height: 1; }
+.price span { color: var(--muted); }
+.price-card ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.price-card li { display: flex; gap: 0.6rem; }
+.price-card li::before { content: "✓"; color: var(--green); font-weight: 700; }
+.pricing .side { display: flex; flex-direction: column; gap: 1rem; }
+.pricing .side p { color: var(--muted); font-size: 1.1rem; }
+
+/* FAQ */
+.faq { display: flex; flex-direction: column; max-width: 46rem; }
+.faq details { border-bottom: 1px solid var(--line); padding-block: 1.1rem; }
+.faq summary { cursor: pointer; font-family: var(--display); font-weight: 600; font-size: 1.15rem; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--green); font-size: 1.4rem; line-height: 1; }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { color: var(--muted); padding-top: 0.6rem; max-width: 40rem; }
+
+/* Closing */
+.closing { background: var(--green); color: var(--on-green); }
+.closing .wrap { padding-block: 4rem; display: flex; flex-direction: column; align-items: flex-start; gap: 1.2rem; }
+.closing h2 { max-width: 36rem; }
+.closing .btn { background: var(--on-green); color: var(--green); }
+footer .wrap { padding-block: 2rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; color: var(--muted); font-size: 0.9rem; }
+
+@media (max-width: 860px) {
+  .hero .wrap, .pricing .wrap { grid-template-columns: 1fr; gap: 2.5rem; }
+  .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .screens, .why { grid-template-columns: 1fr; }
+  header nav a.text { display: none; }
+  footer .wrap { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .timeline { grid-template-columns: 1fr; }
+  section.band { padding-block: 3.5rem; }
+}
+</style>
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#top"><span class="logo-mark" aria-hidden="true">★</span>ReviewWhistle</a>
+    <nav>
+      <a class="text" href="#how">How it works</a>
+      <a class="text" href="#pricing">Pricing</a>
+      <a class="text" href="#faq">Questions</a>
+      <a class="btn" href="https://reviewnudge.expo.app/sign-in">Get started</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="label">For local service businesses in Canada and the US</span>
+        <h1>The job went great. <em>Now get the review.</em></h1>
+        <p class="lede">After each job, pick the customer and tap one button. Your phone opens a friendly text with your Google review link already in it. You hit send. That's it.</p>
+        <div class="cta-row">
+          <a class="btn" href="https://reviewnudge.expo.app/sign-in">Start your free trial</a>
+          <a class="btn ghost" href="#how">See how it works</a>
+        </div>
+        <p class="fineprint">14 days free, no credit card needed. Then $39 a month, one plan with everything in it.</p>
+        <div class="trades" aria-label="Built for">
+          <span>Cleaners</span><span>Plumbers</span><span>HVAC</span><span>Auto detailers</span><span>Dog groomers</span>
+        </div>
+      </div>
+
+      <div class="phone" role="img" aria-label="Example text message asking a customer for a Google review">
+        <div class="phone-top">
+          <div class="avatar">SL</div>
+          <strong>Sarah Lee</strong><br>
+          <small>(519) 555-0142</small>
+        </div>
+        <div class="thread">
+          <div class="stamp">Today 4:12 PM</div>
+          <div class="bubble out">Hi Sarah, thanks for choosing Maple Leaf Cleaning! If you have a minute, would you leave us a quick Google review? It really helps us out: <span class="link">reviewnudge.expo.app/r</span></div>
+          <div class="receipt late">Delivered</div>
+          <div class="bubble in">Done! You guys were great 🙌</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">How it works</span>
+        <h2>From finished job to fresh review, without chasing anyone.</h2>
+        <p>Most happy customers would leave a review. They just forget. ReviewWhistle asks at the right moment and reminds them once.</p>
+      </div>
+      <div class="timeline">
+        <div class="step">
+          <span class="when">Job done</span>
+          <h3>Pick the customer</h3>
+          <p>Search your customer list, or add someone straight from your phone contacts.</p>
+        </div>
+        <div class="step">
+          <span class="when">+ 10 seconds</span>
+          <h3>Tap "Ask for review"</h3>
+          <p>Your own Messages app opens with the text written for you. You read it and press send.</p>
+        </div>
+        <div class="step">
+          <span class="when">+ a few minutes</span>
+          <h3>They choose how to reply</h3>
+          <p>The link opens a simple page: leave a Google review, or tell you privately if something wasn't right.</p>
+        </div>
+        <div class="step">
+          <span class="when">+ 48 hours</span>
+          <h3>One friendly reminder</h3>
+          <p>If you have their email, we send a single follow-up email. Just one, never a pile of them.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">What everyone sees</span>
+        <h2>A two-button page for your customer. A clear count for you.</h2>
+      </div>
+      <div class="screens">
+        <div class="screen">
+          <div class="panel" role="img" aria-label="The customer page with two buttons">
+            <span class="example-tag">Customer page</span>
+            <div class="biz">Maple Leaf Cleaning</div>
+            <p class="ask">Thanks for having us! How did we do?</p>
+            <span class="choice google"><span class="stars">★★★★★</span>&nbsp; Leave a Google review</span>
+            <span class="choice private">Something wasn't right? Tell us privately</span>
+          </div>
+          <p>Every customer gets both choices. Most will head to Google. If someone had a bad day, you hear about it first and get the chance to make it right.</p>
+        </div>
+        <div class="screen">
+          <div class="panel" role="img" aria-label="Example dashboard with requests sent and reviews gained">
+            <span class="example-tag">Example numbers</span>
+            <div class="stats">
+              <div class="stat"><b>38</b><span>Review requests sent</span></div>
+              <div class="stat"><b class="up">+14</b><span>Google reviews since joining</span></div>
+            </div>
+            <div class="feedback-row">
+              <strong>"The back deck was missed, can you swing by?"</strong>
+              <small>Private feedback · Oct 14</small>
+            </div>
+          </div>
+          <p>Your dashboard shows how many people you've asked and how many new Google reviews you've picked up, counted straight from your Google listing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">Why owners like it</span>
+        <h2>Built for people who are on the job, not at a desk.</h2>
+      </div>
+      <div class="why">
+        <div>
+          <h3>It comes from your number</h3>
+          <p>Customers see a text from the person who just did the work, not an unknown short code. That's why people actually open it.</p>
+        </div>
+        <div>
+          <h3>Set up in a few minutes</h3>
+          <p>Type your business name, pick your Google listing from the search results, and you're ready. No links to dig up.</p>
+        </div>
+        <div>
+          <h3>Your words, your tone</h3>
+          <p>Edit the message once to sound like you. Each text fills in the customer's name and your review link for you.</p>
+        </div>
+        <div>
+          <h3>Bad news stays private</h3>
+          <p>Unhappy customers can message you directly from the review page, and it shows up on your dashboard.</p>
+        </div>
+        <div>
+          <h3>Never spammy</h3>
+          <p>One text that you send yourself, and at most one reminder email. Your customers won't feel hounded.</p>
+        </div>
+        <div>
+          <h3>Made for Canada and the US</h3>
+          <p>Phone numbers, dates and the review link all work on both sides of the border.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band pricing" id="pricing">
+    <div class="wrap">
+      <div class="side">
+        <span class="label">Pricing</span>
+        <h2>One price. No per-text fees.</h2>
+        <p>One new Google review can bring in a job worth far more than a month of ReviewWhistle. Ask every customer, every time, for the same flat price.</p>
+      </div>
+      <div class="price-card">
+        <div class="price"><b>$39</b><span>/ month</span></div>
+        <p class="fineprint">Billed in CAD in Canada and USD in the US. Starts with a 14-day free trial, no credit card needed.</p>
+        <ul>
+          <li>Unlimited review requests</li>
+          <li>Customer list with phone contacts import</li>
+          <li>Your own editable message</li>
+          <li>Customer page with private feedback</li>
+          <li>48-hour reminder email</li>
+          <li>Dashboard of requests and reviews gained</li>
+        </ul>
+        <a class="btn" href="https://reviewnudge.expo.app/sign-in">Start your free trial</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">Questions</span>
+        <h2>Good questions owners ask.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Does ReviewWhistle send texts for me?</summary>
+          <p>No. It opens your phone's own Messages app with the text ready to go, and you press send. That way the text comes from your number and you stay in control of every message.</p>
+        </details>
+        <details>
+          <summary>Is this allowed by Google?</summary>
+          <p>Yes. Google wants businesses to ask for reviews. ReviewWhistle shows every customer the Google review button and never hides it from anyone, and it never offers rewards for reviews.</p>
+        </details>
+        <details>
+          <summary>What if a customer doesn't have an email?</summary>
+          <p>That's fine. The text is the main ask. The 48-hour reminder email only goes out when you've saved an email for that customer.</p>
+        </details>
+        <details>
+          <summary>Does it work on iPhone and Android?</summary>
+          <p>Yes. ReviewWhistle uses the regular Messages app on both.</p>
+        </details>
+        <details>
+          <summary>How does the free trial work?</summary>
+          <p>You get 14 days free, with no credit card needed. If you want to keep going after that, subscribe for $39 a month from Settings. If you don't subscribe, you simply stop being able to send new review requests. You're never charged without signing up.</p>
+        </details>
+        <details id="refunds">
+          <summary>Can I cancel? What about refunds?</summary>
+          <p>You can cancel anytime in Settings → Manage billing. You keep access until the end of the month you've already paid for, and you won't be charged again. We don't refund partial months. If you were charged by mistake, email us within 30 days and we'll refund it in full.</p>
+        </details>
+        <details>
+          <summary>How do I reach you?</summary>
+          <p>Email <a href="mailto:jeff@reviewwhistle.com">jeff@reviewwhistle.com</a>. A real person answers, usually within one business day.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="wrap">
+      <h2>Your next happy customer is one tap away from a five-star review.</h2>
+      <a class="btn" href="https://reviewnudge.expo.app/sign-in">Start your 14-day free trial</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 ReviewWhistle · London, Ontario, Canada</span>
+    <span><a href="#refunds">Cancellation and refunds</a> · <a href="mailto:jeff@reviewwhistle.com">jeff@reviewwhistle.com</a></span>
+  </div>
+</footer>
+
+<script>
+  // Open the refunds answer when someone follows a link to it.
+  function openFromHash() {
+    var el = location.hash && document.getElementById(location.hash.slice(1));
+    if (el && el.tagName === 'DETAILS') el.open = true;
+  }
+  window.addEventListener('hashchange', openFromHash);
+  openFromHash();
+</script>
+</body>
+</html>
