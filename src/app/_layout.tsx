@@ -6,15 +6,26 @@ import { useColorScheme } from 'react-native';
 import { BusinessProvider, useBusiness } from '@/components/business-provider';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { SessionProvider, useSession } from '@/components/session-provider';
+import { Colors } from '@/constants/theme';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
 // Keep the splash screen up until we know whether the owner is logged in.
 SplashScreen.preventAutoHideAsync();
 
+// Navigation colors that match ours, so screens never flash white or black between pages.
+const LightNavTheme = {
+  ...DefaultTheme,
+  colors: { ...DefaultTheme.colors, background: Colors.light.background, primary: Colors.light.tint },
+};
+const DarkNavTheme = {
+  ...DarkTheme,
+  colors: { ...DarkTheme.colors, background: Colors.dark.background, primary: Colors.dark.tint },
+};
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkNavTheme : LightNavTheme}>
       <SessionProvider>
         <BusinessProvider>
           <RootNavigator />

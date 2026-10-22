@@ -1,13 +1,11 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Platform, RefreshControl, ScrollView, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 
-import { Button } from '@/components/button';
 import { useBusiness } from '@/components/business-provider';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Card, ErrorText, Screen, ScreenHeader, SectionLabel } from '@/components/ui';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { supabase } from '@/lib/supabase';
 
@@ -24,7 +22,6 @@ type Stats = {
 
 export default function DashboardScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { business } = useBusiness();
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -94,110 +91,145 @@ export default function DashboardScreen() {
       : null;
 
   return (
-    <ScrollView
-      style={{ backgroundColor: theme.background }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}
-      contentContainerStyle={[
-        styles.content,
-        {
-          paddingTop: insets.top + (Platform.OS === 'web' ? Spacing.six + Spacing.four : Spacing.four),
-          paddingBottom: insets.bottom + BottomTabInset + Spacing.four,
-        },
-      ]}>
-      <ThemedView style={styles.inner}>
-        <ThemedText type="subtitle">Dashboard</ThemedText>
+    <Screen hasTabs refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
+      <ScreenHeader eyebrow={business?.name} title="Dashboard" />
 
-        <ThemedView type="backgroundElement" style={styles.card}>
-          <ThemedText type="small" themeColor="textSecondary">
-            Review requests sent
-          </ThemedText>
-          <ThemedText type="title">{stats ? stats.requestsTotal : '–'}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {stats ? `${stats.requestsThisMonth} this month` : ' '}
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedView type="backgroundElement" style={styles.card}>
-          <ThemedText type="small" themeColor="textSecondary">
-            Google reviews gained since you joined
-          </ThemedText>
-          {hasListing ? (
-            <>
-              <ThemedText type="title" themeColor="tint">
+      <View style={[styles.hero, { backgroundColor: theme.hero }]}>
+        <ThemedText type="smallBold" style={{ color: theme.heroTextSoft }}>
+          Google reviews gained since you joined
+        </ThemedText>
+        {hasListing ? (
+          <>
+            <View style={styles.heroNumberRow}>
+              <ThemedText type="title" style={{ color: theme.heroText }}>
                 {gained != null ? `+${gained}` : '–'}
               </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {stats?.reviewsNow != null && stats.reviewsAtStart != null
-                  ? `${stats.reviewsAtStart} when you joined, ${stats.reviewsNow} now`
-                  : ' '}
-              </ThemedText>
-            </>
-          ) : (
-            <>
-              <ThemedText type="small">
-                Pick your Google listing so we can count your new reviews.
-              </ThemedText>
-              <Button title="Find my Google listing" onPress={() => router.push('/business-setup')} />
-            </>
-          )}
-        </ThemedView>
-
-        <ThemedView type="backgroundElement" style={styles.card}>
-          <ThemedText type="small" themeColor="textSecondary">
-            Private feedback from customers
-          </ThemedText>
-          {stats?.feedback.length ? (
-            stats.feedback.map((item) => (
-              <ThemedView key={item.id} type="backgroundElement" style={styles.feedback}>
-                <ThemedText type="small">{item.message}</ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {[new Date(item.created_at).toLocaleDateString(), item.contact]
-                    .filter(Boolean)
-                    .join('  ·  ')}
-                </ThemedText>
-              </ThemedView>
-            ))
-          ) : (
-            <ThemedText type="small">
-              None yet. Unhappy customers can tell you privately here instead of on Google.
+              <ThemedText style={styles.stars}>★★★★★</ThemedText>
+            </View>
+            <ThemedText type="small" style={{ color: theme.heroTextSoft }}>
+              {stats?.reviewsNow != null && stats.reviewsAtStart != null
+                ? `${stats.reviewsAtStart} when you joined, ${stats.reviewsNow} now`
+                : ' '}
             </ThemedText>
-          )}
-        </ThemedView>
-
-        {error && (
-          <ThemedText type="small" style={styles.error}>
-            {error}
-          </ThemedText>
+          </>
+        ) : (
+          <>
+            <ThemedText style={[styles.heroMessage, { color: theme.heroText }]}>
+              Pick your Google listing so we can count your new reviews.
+            </ThemedText>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/business-setup')}
+              style={({ pressed }) => [styles.heroButton, pressed && styles.pressed]}>
+              <ThemedText type="smallBold" style={{ color: theme.hero }}>
+                Find my Google listing
+              </ThemedText>
+            </Pressable>
+          </>
         )}
-        <ThemedText type="small" themeColor="textSecondary">
-          We check Google every few hours, so a new review can take a while to show up here.
-        </ThemedText>
-      </ThemedView>
-    </ScrollView>
+      </View>
+
+      <View style={styles.tiles}>
+        <Card style={styles.tile}>
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            Requests sent
+          </ThemedText>
+          <ThemedText type="subtitle" style={styles.tileNumber}>
+            {stats ? stats.requestsTotal : '–'}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            all time
+          </ThemedText>
+        </Card>
+        <Card style={styles.tile}>
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            This month
+          </ThemedText>
+          <ThemedText type="subtitle" style={styles.tileNumber}>
+            {stats ? stats.requestsThisMonth : '–'}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {stats?.requestsThisMonth === 1 ? 'request' : 'requests'}
+          </ThemedText>
+        </Card>
+      </View>
+
+      <SectionLabel>Private feedback</SectionLabel>
+      {stats?.feedback.length ? (
+        stats.feedback.map((item) => (
+          <Card key={item.id} style={styles.feedback}>
+            <ThemedText style={styles.feedbackMessage}>{item.message}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {[new Date(item.created_at).toLocaleDateString(), item.contact].filter(Boolean).join('  ·  ')}
+            </ThemedText>
+          </Card>
+        ))
+      ) : (
+        <Card>
+          <ThemedText type="small" themeColor="textSecondary">
+            None yet. Unhappy customers can tell you privately here instead of on Google.
+          </ThemedText>
+        </Card>
+      )}
+
+      <ErrorText>{error}</ErrorText>
+      <ThemedText type="small" themeColor="textSecondary" style={styles.footnote}>
+        We check Google every few hours, so a new review can take a while to show up here.
+      </ThemedText>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
-    flexGrow: 1,
-    alignItems: 'center',
-    paddingHorizontal: Spacing.four,
-  },
-  inner: {
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    gap: Spacing.three,
-  },
-  card: {
-    padding: Spacing.four,
-    borderRadius: Spacing.three,
+  hero: {
+    borderRadius: Radius.hero,
+    padding: Spacing.four - Spacing.half,
     gap: Spacing.one,
   },
-  feedback: {
-    marginTop: Spacing.two,
-    gap: Spacing.half,
+  heroNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
   },
-  error: {
-    color: '#D93025',
+  stars: {
+    color: '#FFD166',
+    fontSize: 18,
+    letterSpacing: 2,
+  },
+  heroMessage: {
+    marginVertical: Spacing.two,
+  },
+  heroButton: {
+    alignSelf: 'flex-start',
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.pill,
+    backgroundColor: '#FFFFFF',
+  },
+  pressed: {
+    opacity: 0.7,
+  },
+  tiles: {
+    flexDirection: 'row',
+    gap: Spacing.three - Spacing.one,
+  },
+  tile: {
+    flex: 1,
+    gap: Spacing.one,
+  },
+  tileNumber: {
+    fontSize: 32,
+    lineHeight: 38,
+  },
+  feedback: {
+    gap: Spacing.two,
+  },
+  feedbackMessage: {
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  footnote: {
+    paddingHorizontal: Spacing.one,
   },
 });

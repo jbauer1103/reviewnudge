@@ -1,4 +1,4 @@
-# ReviewNudge
+# ReviewWhistle
 
 A simple app that helps small service businesses ask customers for Google reviews.
 

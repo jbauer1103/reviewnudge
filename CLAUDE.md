@@ -1,9 +1,10 @@
-# ReviewNudge
+# ReviewWhistle
 
 ## Who I'm working with
 Jeff is a first-time app builder (has only made a few Lovable websites). Explain things in plain English and keep explanations short.
 
-## What ReviewNudge is
+## What ReviewWhistle is
+The app was called ReviewNudge until 2026-10-22, when Jeff renamed it (a company called ReviewNudger already exists) and bought the domain reviewwhistle.com. Behind-the-scenes names still say reviewnudge on purpose: the GitHub repo, the Expo slug and project, the app link scheme `reviewnudge://` (allowed in Supabase redirect URLs), the npm package name and https://reviewnudge.expo.app. Changing those would break log in links and hosting, so only change them together and on purpose.
 A simple app for small service businesses in Canada and the US (cleaners, plumbers, HVAC, auto detailers, dog groomers). After a job, the owner picks the customer and taps one button. The app opens their phone's own Messages app with a friendly, pre-written text containing their Google review link, and the owner hits send. The app logs the request, sends one follow-up email 48 hours later if the customer has an email, and shows a dashboard of requests sent and Google reviews gained. Price: $39/month, paid on our website (not inside the app).
 
 ## Tech stack (use exactly this)
@@ -57,7 +58,8 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - `scripts/test-login-code.mjs` — testing only: makes a login code for a second test account (needs the secret key in `.env.admin`).
 - `src/lib/ask-for-review.ts` — opens Messages (expo-sms) with the filled-in review text, then logs a row in `review_requests`. The link is the Google review link for now; later it becomes our customer web page.
 - `src/lib/phone.ts` — turns typed phone numbers into +1XXXXXXXXXX and shows them as (416) 555-1234.
-- `src/constants/theme.ts` — colors and spacing (brand green is `tint`).
+- `src/constants/theme.ts` — colors, corner roundness (`Radius`) and spacing (brand green is `tint`; light and dark versions of every color).
+- `src/components/ui.tsx` — shared look: `Screen` (scrolling page), `ScreenHeader` (big title), `Card`, `SectionLabel`, `TextField` (labelled input), `ErrorText`, `Avatar` (initials), `Divider`. `button.tsx` has the button styles (primary, secondary, outline, ghost, danger; `size="small"` for the pill in list rows). `icon.tsx` maps the app's few icons to SF Symbols (iPhone) and Material Symbols (Android, web) through expo-symbols. `back-link.tsx` is the "‹ Back" link.
 
 ## Progress
 - Session 1: Expo SDK 57 app shell with three placeholder tabs (Customers, Dashboard, Settings).
@@ -68,8 +70,10 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 6: Dashboard with review requests sent (total and this month) and Google reviews gained since joining (latest count minus google_review_count_at_start). Pull down to refresh.
 - Session 7: Settings → Delete account (confirm step), tested on a throwaway account.
 - Session 8: customer page and private feedback. Published with EAS Hosting at https://reviewnudge.expo.app (Expo project @jbauer1103/reviewnudge); the page is /r?b=<business id> because static hosting does not serve dynamic routes. EXPO_PUBLIC_REVIEW_PAGE_URL in .env and the REVIEW_PAGE_URL function secret point texts and emails at it. Redeploy the web version with: npx expo export -p web && npx eas-cli@latest deploy --prod
+- Session 10: front-end redesign (no behavior changes). Design made in Claude Design: https://claude.ai/artifact/FmExDPmZ4BtFaaw4GLr4kT. Off-white page, white cards, big bold titles, green hero card for reviews gained, text-bubble preview of the review message.
 - Session 9: 48-hour follow-up email deployed, scheduled hourly, RESEND_API_KEY saved, test email to Jeff worked. Jeff has no domain yet (2026-10-21): until one is verified in Resend, follow-ups only reach jbauer7@uwo.ca.
-- Session 10 (2026-10-22): Stripe billing code, database table and functions deployed to Supabase. Jeff uses a separate ReviewWhistle account under his existing Stripe login. App renamed ReviewWhistle (reviewwhistle.com).
+- 2026-10-22: renamed to ReviewWhistle; Jeff bought reviewwhistle.com and verified it in Resend. Follow-ups (RESEND_FROM secret = `ReviewWhistle <jeff@reviewwhistle.com>`) and login emails (Supabase SMTP sender jeff@reviewwhistle.com, name ReviewWhistle) now send from it, so they can reach any inbox. Replies go to Jeff's jeff@reviewwhistle.com mailbox.
+- Session 11 (2026-10-22): Stripe billing code, database table and functions deployed to Supabase. Jeff uses a separate ReviewWhistle account under his existing Stripe login. App renamed ReviewWhistle (reviewwhistle.com).
 
 ## After the MVP backend works (Jeff, 2026-10-21)
 - Polished front-end redesign of the app using Claude Design.

@@ -1,14 +1,15 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 
+import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { useBusiness } from '@/components/business-provider';
 import { GoogleListingSearch, type GoogleListing } from '@/components/google-listing-search';
+import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { Avatar, Card, ErrorText, Screen, ScreenHeader, SectionLabel, TextField } from '@/components/ui';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { fillMessage } from '@/lib/message';
 import { supabase } from '@/lib/supabase';
@@ -20,7 +21,6 @@ const DEFAULT_MESSAGE =
 // Business setup: shown right after the first log in, and from Settings to make changes.
 export default function BusinessSetupScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { business, loadError, reload } = useBusiness();
   const isEditing = !!business;
 
@@ -89,7 +89,6 @@ export default function BusinessSetupScreen() {
     }
   }
 
-  const inputStyle = [styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }];
   const preview = fillMessage(message, {
     customer: 'Sam',
     business: name.trim() || 'your business',
@@ -100,129 +99,121 @@ export default function BusinessSetupScreen() {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[styles.screen, { backgroundColor: theme.background }]}>
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={[
-          styles.content,
-          { paddingTop: insets.top + Spacing.four, paddingBottom: insets.bottom + Spacing.four },
-        ]}>
-        <ThemedView style={styles.inner}>
-          <ThemedText type="subtitle">{isEditing ? 'Your business' : 'Set up your business'}</ThemedText>
-          {!isEditing && (
-            <ThemedText themeColor="textSecondary">
-              Tell us a little about your business. You can change this later in Settings.
-            </ThemedText>
-          )}
-          {loadError && (
-            <ThemedText type="small" style={styles.error}>
-              Couldn’t load your business: {loadError}
-            </ThemedText>
-          )}
-
-          <ThemedText type="smallBold">Business name</ThemedText>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Sparkle Cleaning Co."
-            placeholderTextColor={theme.textSecondary}
-            autoCapitalize="words"
-            returnKeyType="next"
-            style={inputStyle}
-          />
-
-          <ThemedText type="smallBold">Your Google listing</ThemedText>
-          {placeId && !searchingAgain ? (
-            <ThemedView type="backgroundElement" style={styles.preview}>
-              <ThemedText type="smallBold">{picked?.name ?? name}</ThemedText>
-              {picked && (
-                <ThemedText type="small" themeColor="textSecondary">
-                  {picked.address}
-                </ThemedText>
-              )}
-              <ThemedText type="small" themeColor="tint">
-                ✓ Linked to your Google listing
-              </ThemedText>
-              <Button
-                title="Pick a different listing"
-                variant="secondary"
-                onPress={() => setSearchingAgain(true)}
-              />
-            </ThemedView>
-          ) : (
-            <>
-              <ThemedText type="small" themeColor="textSecondary">
-                Search for your business and tap it, so customers go straight to your review box.
-              </ThemedText>
-              <GoogleListingSearch
-                initialQuery={name}
-                onPick={(listing) => {
-                  setPicked(listing);
-                  setPlaceId(listing.placeId);
-                  setReviewUrl(listing.reviewUrl);
-                  setSearchingAgain(false);
-                  if (!name.trim()) setName(listing.name);
-                }}
-              />
-            </>
-          )}
-
-          <ThemedText type="smallBold">Google review link</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            Filled in when you pick your listing. Can’t find it? On Google, tap “Ask for reviews” on
-            your listing and paste that link here.
+      <Screen>
+        {isEditing && <BackLink />}
+        <ScreenHeader title={isEditing ? 'Your business' : 'Set up your business'} />
+        {!isEditing && (
+          <ThemedText themeColor="textSecondary" style={styles.intro}>
+            Tell us a little about your business. You can change this later in Settings.
           </ThemedText>
-          <TextInput
-            value={reviewUrl}
-            onChangeText={(text) => {
-              setReviewUrl(text);
-              // A pasted link may be for a different listing than the one picked.
-              setPlaceId(null);
-              setPicked(null);
-            }}
-            placeholder="https://g.page/r/..."
-            placeholderTextColor={theme.textSecondary}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="url"
-            textContentType="URL"
-            style={inputStyle}
-          />
+        )}
+        {loadError && <ErrorText>Couldn’t load your business: {loadError}</ErrorText>}
 
-          <ThemedText type="smallBold">Your review text message</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {'{customer}'} becomes the customer’s first name, {'{business}'} your business name,
-            and {'{link}'} your review link.
+        <TextField
+          label="Business name"
+          value={name}
+          onChangeText={setName}
+          placeholder="Sparkle Cleaning Co."
+          autoCapitalize="words"
+          returnKeyType="next"
+        />
+
+        <SectionLabel>Your Google listing</SectionLabel>
+        {placeId && !searchingAgain ? (
+          <Card style={styles.listing}>
+            <View style={styles.listingTop}>
+              <Avatar name={picked?.name ?? name} size={44} solid />
+              <View style={styles.listingText}>
+                <ThemedText style={styles.listingName}>{picked?.name ?? name}</ThemedText>
+                {picked && (
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {picked.address}
+                  </ThemedText>
+                )}
+                <View style={styles.linked}>
+                  <Icon name="check" size={12} color={theme.tintText} />
+                  <ThemedText type="small" style={[styles.linkedText, { color: theme.tintText }]}>
+                    Linked to your Google listing
+                  </ThemedText>
+                </View>
+              </View>
+            </View>
+            <Button
+              title="Pick a different listing"
+              variant="outline"
+              size="small"
+              onPress={() => setSearchingAgain(true)}
+            />
+          </Card>
+        ) : (
+          <>
+            <ThemedText type="small" themeColor="textSecondary">
+              Search for your business and tap it, so customers go straight to your review box.
+            </ThemedText>
+            <GoogleListingSearch
+              initialQuery={name}
+              onPick={(listing) => {
+                setPicked(listing);
+                setPlaceId(listing.placeId);
+                setReviewUrl(listing.reviewUrl);
+                setSearchingAgain(false);
+                if (!name.trim()) setName(listing.name);
+              }}
+            />
+          </>
+        )}
+
+        <TextField
+          label="Google review link"
+          hint="Filled in when you pick your listing. Can’t find it? On Google, tap “Ask for reviews” on your listing and paste that link here."
+          value={reviewUrl}
+          onChangeText={(text) => {
+            setReviewUrl(text);
+            // A pasted link may be for a different listing than the one picked.
+            setPlaceId(null);
+            setPicked(null);
+          }}
+          placeholder="https://g.page/r/..."
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="url"
+          textContentType="URL"
+        />
+
+        <SectionLabel>Your review text message</SectionLabel>
+        <TextField
+          hint={`{customer} becomes the customer’s first name, {business} your business name, and {link} your review link.`}
+          value={message}
+          onChangeText={setMessage}
+          multiline
+          accessibilityLabel="Your review text message"
+        />
+        <Button
+          title="Reset to the suggested message"
+          variant="ghost"
+          size="small"
+          onPress={() => setMessage(DEFAULT_MESSAGE)}
+          style={styles.reset}
+        />
+
+        <View style={styles.previewWrap}>
+          <ThemedText type="sectionLabel" themeColor="textSecondary">
+            Preview
           </ThemedText>
-          <TextInput
-            value={message}
-            onChangeText={setMessage}
-            multiline
-            textAlignVertical="top"
-            style={[inputStyle, styles.messageInput]}
-          />
-          <Button
-            title="Reset to the suggested message"
-            variant="secondary"
-            onPress={() => setMessage(DEFAULT_MESSAGE)}
-          />
-
-          <ThemedView type="backgroundElement" style={styles.preview}>
-            <ThemedText type="smallBold" themeColor="textSecondary">
-              Preview
+          <View style={[styles.bubble, { backgroundColor: theme.tint }]}>
+            <ThemedText type="small" style={{ color: theme.onTint }}>
+              {preview}
             </ThemedText>
-            <ThemedText type="small">{preview}</ThemedText>
-          </ThemedView>
+          </View>
+        </View>
 
-          {error && (
-            <ThemedText type="small" style={styles.error}>
-              {error}
-            </ThemedText>
-          )}
+        <ErrorText>{error}</ErrorText>
 
+        <View style={styles.buttons}>
           <Button title={isEditing ? 'Save changes' : 'Save and continue'} onPress={save} loading={saving} />
-          {isEditing && <Button title="Cancel" variant="secondary" onPress={() => router.back()} />}
-        </ThemedView>
-      </ScrollView>
+          {isEditing && <Button title="Cancel" variant="ghost" onPress={() => router.back()} />}
+        </View>
+      </Screen>
     </KeyboardAvoidingView>
   );
 }
@@ -231,34 +222,53 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  content: {
-    alignItems: 'center',
-    paddingHorizontal: Spacing.four,
+  intro: {
+    marginTop: -Spacing.two,
   },
-  inner: {
-    width: '100%',
-    maxWidth: MaxContentWidth,
+  listing: {
+    gap: Spacing.three,
+  },
+  listingTop: {
+    flexDirection: 'row',
+    gap: Spacing.three - Spacing.one,
+  },
+  listingText: {
+    flex: 1,
+    gap: Spacing.half,
+  },
+  listingName: {
+    fontWeight: 700,
+  },
+  linked: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
+    marginTop: Spacing.one,
+  },
+  linkedText: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: 600,
+  },
+  reset: {
+    alignSelf: 'flex-start',
+    marginTop: -Spacing.two,
+    paddingHorizontal: Spacing.one,
+  },
+  previewWrap: {
     gap: Spacing.two,
   },
-  input: {
-    minHeight: 48,
-    borderRadius: Spacing.three,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    fontSize: 16,
-    marginBottom: Spacing.two,
+  // Looks like a sent text message.
+  bubble: {
+    alignSelf: 'flex-end',
+    maxWidth: '88%',
+    borderRadius: Radius.hero,
+    borderBottomRightRadius: Spacing.one + Spacing.half,
+    paddingVertical: Spacing.two + Spacing.half,
+    paddingHorizontal: Spacing.three - Spacing.half,
   },
-  messageInput: {
-    minHeight: 120,
-    paddingTop: Spacing.three,
-  },
-  preview: {
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
+  buttons: {
     gap: Spacing.one,
-    marginVertical: Spacing.two,
-  },
-  error: {
-    color: '#D93025',
+    marginTop: Spacing.two,
   },
 });
