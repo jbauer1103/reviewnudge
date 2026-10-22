@@ -72,6 +72,8 @@ function RootNavigator() {
       <Stack.Protected guard={!!session && !!business}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="customer/[id]" />
+        {/* Jeff's owner dashboard. The database only gives numbers to admins. */}
+        <Stack.Screen name="admin" />
       </Stack.Protected>
       <Stack.Protected guard={!!session}>
         <Stack.Screen name="business-setup" />

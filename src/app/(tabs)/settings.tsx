@@ -22,11 +22,14 @@ export default function SettingsScreen() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Refresh the plan each time Settings is shown (for example after paying).
   useFocusEffect(
     useCallback(() => {
       reload();
+      // Only the ReviewWhistle owner sees the Owner dashboard link.
+      supabase.rpc('is_admin').then(({ data }) => setIsAdmin(data === true));
     }, [reload]),
   );
 
@@ -125,6 +128,15 @@ export default function SettingsScreen() {
             )}
           </Card>
           <ErrorText>{billingError}</ErrorText>
+        </>
+      )}
+
+      {isAdmin && (
+        <>
+          <SectionLabel>ReviewWhistle</SectionLabel>
+          <Card style={styles.group}>
+            <Row title="Owner dashboard" chevron onPress={() => router.push('/admin')} />
+          </Card>
         </>
       )}
 
