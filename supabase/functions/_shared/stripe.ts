@@ -51,3 +51,46 @@ export const corsHeaders = {
 export function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: corsHeaders });
 }
+
+// Makes sure Stripe knows where to send subscription updates (our stripe-webhook
+// function), so nobody has to set the webhook up by hand. The first time, it creates
+// the webhook in Stripe and saves its signing secret in the private stripe_settings table.
+// deno-lint-ignore no-explicit-any
+export async function ensureWebhook(supabaseAdmin: any) {
+  const { data: saved } = await supabaseAdmin
+    .from('stripe_settings')
+    .select('value')
+    .eq('key', 'webhook_secret')
+    .maybeSingle();
+  if (saved || Deno.env.get('STRIPE_WEBHOOK_SECRET')) return;
+
+  const endpoint = await stripe('POST', 'webhook_endpoints', {
+    url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/stripe-webhook`,
+    enabled_events: {
+      0: 'customer.subscription.created',
+      1: 'customer.subscription.updated',
+      2: 'customer.subscription.deleted',
+    },
+    description: 'Subscription updates for the app (created automatically)',
+  });
+  const { error } = await supabaseAdmin
+    .from('stripe_settings')
+    .insert({ key: 'webhook_secret', value: endpoint.secret });
+  if (error) {
+    // Someone else set it up at the same moment: keep theirs, remove ours.
+    await stripe('DELETE', `webhook_endpoints/${endpoint.id}`);
+  }
+}
+
+// The webhook's signing secret: from the Supabase secret if set, else the saved one.
+// deno-lint-ignore no-explicit-any
+export async function webhookSecret(supabaseAdmin: any): Promise<string | undefined> {
+  const fromEnv = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+  if (fromEnv) return fromEnv;
+  const { data } = await supabaseAdmin
+    .from('stripe_settings')
+    .select('value')
+    .eq('key', 'webhook_secret')
+    .maybeSingle();
+  return data?.value;
+}

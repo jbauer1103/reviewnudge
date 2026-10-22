@@ -1,11 +1,12 @@
 // Stripe calls this whenever a subscription starts, renews, changes or ends, and we
-// save the latest state in the subscriptions table. Needs the secrets STRIPE_SECRET_KEY
-// and STRIPE_WEBHOOK_SECRET (whsec_..., from Stripe → Developers → Webhooks).
+// save the latest state in the subscriptions table. Needs the secret STRIPE_SECRET_KEY.
+// The webhook is set up in Stripe automatically on the first checkout (see ensureWebhook);
+// its signing secret is saved in stripe_settings, or can be set as STRIPE_WEBHOOK_SECRET.
 // Anyone can reach this address, so every message is checked against Stripe's signature.
 
 import { withSupabase } from 'npm:@supabase/server@1';
 
-import { stripe } from '../_shared/stripe.ts';
+import { stripe, webhookSecret } from '../_shared/stripe.ts';
 
 const encoder = new TextEncoder();
 
@@ -37,9 +38,9 @@ function toDate(seconds: number | null | undefined) {
 }
 
 const handler = withSupabase({ auth: 'none' }, async (req, ctx) => {
-  const secret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+  const secret = await webhookSecret(ctx.supabaseAdmin);
   if (!secret) {
-    return Response.json({ error: 'STRIPE_WEBHOOK_SECRET is missing.' }, { status: 500 });
+    return Response.json({ error: 'The webhook signing secret is missing.' }, { status: 500 });
   }
   const body = await req.text();
   if (!(await isFromStripe(body, req.headers.get('stripe-signature'), secret))) {

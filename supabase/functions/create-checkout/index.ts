@@ -5,7 +5,7 @@
 
 import { withSupabase } from 'npm:@supabase/server@1';
 
-import { corsHeaders, json, siteUrl, stripe } from '../_shared/stripe.ts';
+import { corsHeaders, ensureWebhook, json, siteUrl, stripe } from '../_shared/stripe.ts';
 
 // Keep in sync with TRIAL_DAYS in src/lib/billing.ts.
 const TRIAL_DAYS = 14;
@@ -44,6 +44,7 @@ const handler = withSupabase({ auth: 'user' }, async (_req, ctx) => {
   }
 
   try {
+    await ensureWebhook(ctx.supabaseAdmin);
     let customerId = subscription?.stripe_customer_id;
     if (!customerId) {
       const customer = await stripe('POST', 'customers', {
