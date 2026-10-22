@@ -89,7 +89,7 @@ export default function SignInScreen() {
             <ThemedText style={styles.logoStar}>★</ThemedText>
           </View>
           <ThemedText type="default" style={styles.brandName}>
-            ReviewNudge
+            ReviewWhistle
           </ThemedText>
         </View>
 
