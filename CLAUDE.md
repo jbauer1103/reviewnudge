@@ -1,9 +1,10 @@
-# ReviewNudge
+# ReviewWhistle
 
 ## Who I'm working with
 Jeff is a first-time app builder (has only made a few Lovable websites). Explain things in plain English and keep explanations short.
 
-## What ReviewNudge is
+## What ReviewWhistle is
+The app was called ReviewNudge until 2026-10-22, when Jeff renamed it (a company called ReviewNudger already exists) and bought the domain reviewwhistle.com. Behind-the-scenes names still say reviewnudge on purpose: the GitHub repo, the Expo slug and project, the app link scheme `reviewnudge://` (allowed in Supabase redirect URLs), the npm package name and https://reviewnudge.expo.app. Changing those would break log in links and hosting, so only change them together and on purpose.
 A simple app for small service businesses in Canada and the US (cleaners, plumbers, HVAC, auto detailers, dog groomers). After a job, the owner picks the customer and taps one button. The app opens their phone's own Messages app with a friendly, pre-written text containing their Google review link, and the owner hits send. The app logs the request, sends one follow-up email 48 hours later if the customer has an email, and shows a dashboard of requests sent and Google reviews gained. Price: $39/month, paid on our website (not inside the app).
 
 ## Tech stack (use exactly this)
@@ -68,6 +69,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 7: Settings → Delete account (confirm step), tested on a throwaway account.
 - Session 8: customer page and private feedback. Published with EAS Hosting at https://reviewnudge.expo.app (Expo project @jbauer1103/reviewnudge); the page is /r?b=<business id> because static hosting does not serve dynamic routes. EXPO_PUBLIC_REVIEW_PAGE_URL in .env and the REVIEW_PAGE_URL function secret point texts and emails at it. Redeploy the web version with: npx expo export -p web && npx eas-cli@latest deploy --prod
 - Session 9: 48-hour follow-up email deployed, scheduled hourly, RESEND_API_KEY saved, test email to Jeff worked. Jeff has no domain yet (2026-10-21): until one is verified in Resend, follow-ups only reach jbauer7@uwo.ca.
+- 2026-10-22: renamed to ReviewWhistle; Jeff bought reviewwhistle.com. Next: verify it in Resend, then set the RESEND_FROM secret and the Supabase SMTP sender to an @reviewwhistle.com address.
 
 ## After the MVP backend works (Jeff, 2026-10-21)
 - Polished front-end redesign of the app using Claude Design.

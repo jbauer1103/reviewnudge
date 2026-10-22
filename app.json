@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ReviewNudge",
+    "name": "ReviewWhistle",
     "slug": "reviewnudge",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -40,7 +40,7 @@
       [
         "expo-contacts",
         {
-          "contactsPermission": "ReviewNudge uses your contacts so you can add customers without retyping their name and phone number."
+          "contactsPermission": "ReviewWhistle uses your contacts so you can add customers without retyping their name and phone number."
         }
       ]
     ],

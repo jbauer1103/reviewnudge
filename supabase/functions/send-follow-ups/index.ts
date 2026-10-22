@@ -19,7 +19,7 @@ const handler = withSupabase({ auth: 'publishable' }, async (_req, ctx) => {
   if (!resendKey) {
     return Response.json({ error: 'RESEND_API_KEY is missing.' }, { status: 500 });
   }
-  const from = Deno.env.get('RESEND_FROM') ?? 'ReviewNudge <onboarding@resend.dev>';
+  const from = Deno.env.get('RESEND_FROM') ?? 'ReviewWhistle <onboarding@resend.dev>';
   const pageUrl = Deno.env.get('REVIEW_PAGE_URL')?.replace(/\/$/, '');
 
   const now = Date.now();
