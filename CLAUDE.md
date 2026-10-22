@@ -69,7 +69,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 7: Settings → Delete account (confirm step), tested on a throwaway account.
 - Session 8: customer page and private feedback. Published with EAS Hosting at https://reviewnudge.expo.app (Expo project @jbauer1103/reviewnudge); the page is /r?b=<business id> because static hosting does not serve dynamic routes. EXPO_PUBLIC_REVIEW_PAGE_URL in .env and the REVIEW_PAGE_URL function secret point texts and emails at it. Redeploy the web version with: npx expo export -p web && npx eas-cli@latest deploy --prod
 - Session 9: 48-hour follow-up email deployed, scheduled hourly, RESEND_API_KEY saved, test email to Jeff worked. Jeff has no domain yet (2026-10-21): until one is verified in Resend, follow-ups only reach jbauer7@uwo.ca.
-- 2026-10-22: renamed to ReviewWhistle; Jeff bought reviewwhistle.com. Next: verify it in Resend, then set the RESEND_FROM secret and the Supabase SMTP sender to an @reviewwhistle.com address.
+- 2026-10-22: renamed to ReviewWhistle; Jeff bought reviewwhistle.com and verified it in Resend. Follow-ups (RESEND_FROM secret = `ReviewWhistle <jeff@reviewwhistle.com>`) and login emails (Supabase SMTP sender jeff@reviewwhistle.com, name ReviewWhistle) now send from it, so they can reach any inbox. Replies go to Jeff's jeff@reviewwhistle.com mailbox.
 
 ## After the MVP backend works (Jeff, 2026-10-21)
 - Polished front-end redesign of the app using Claude Design.
