@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, TextInput } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { ErrorText, TextField } from '@/components/ui';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { supabase } from '@/lib/supabase';
 
@@ -52,26 +53,27 @@ export function GoogleListingSearch({ initialQuery, onPick }: Props) {
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <TextInput
+    <View style={styles.container}>
+      <TextField
         value={query}
         onChangeText={setQuery}
         onSubmitEditing={search}
         placeholder="Business name and city"
-        placeholderTextColor={theme.textSecondary}
         returnKeyType="search"
-        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+        accessibilityLabel="Search Google for your business"
+        left={<Icon name="search" size={18} color={theme.textSecondary} />}
       />
       <Button title="Search Google" variant="secondary" onPress={search} loading={searching} />
 
-      {error && (
-        <ThemedText type="small" style={styles.error}>
-          {error}
-        </ThemedText>
-      )}
+      <ErrorText>{error}</ErrorText>
       {results?.length === 0 && (
         <ThemedText type="small" themeColor="textSecondary">
           No listings found. Try adding your city, or paste your review link below.
+        </ThemedText>
+      )}
+      {!!results?.length && (
+        <ThemedText type="small" themeColor="textSecondary">
+          Tap your business:
         </ThemedText>
       )}
       {results?.map((listing) => (
@@ -84,42 +86,48 @@ export function GoogleListingSearch({ initialQuery, onPick }: Props) {
           }}
           style={({ pressed }) => [
             styles.result,
-            { backgroundColor: theme.backgroundElement },
+            { backgroundColor: theme.backgroundElement, borderColor: theme.border },
             pressed && styles.pressed,
           ]}>
-          <ThemedText type="smallBold">{listing.name}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {listing.address}
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {listing.reviewCount} Google {listing.reviewCount === 1 ? 'review' : 'reviews'}
-          </ThemedText>
+          <View style={styles.resultText}>
+            <ThemedText style={styles.resultName}>{listing.name}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {listing.address}
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              <ThemedText type="small" style={{ color: theme.star }}>
+                ★
+              </ThemedText>{' '}
+              {listing.reviewCount} Google {listing.reviewCount === 1 ? 'review' : 'reviews'}
+            </ThemedText>
+          </View>
+          <Icon name="chevron" size={16} color={theme.textSecondary} />
         </Pressable>
       ))}
-    </ThemedView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: Spacing.two,
-    marginBottom: Spacing.two,
-  },
-  input: {
-    minHeight: 48,
-    borderRadius: Spacing.three,
-    paddingHorizontal: Spacing.three,
-    fontSize: 16,
+    gap: Spacing.two + Spacing.half,
   },
   result: {
     padding: Spacing.three,
-    borderRadius: Spacing.three,
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
+  resultText: {
+    flex: 1,
     gap: Spacing.half,
+  },
+  resultName: {
+    fontWeight: 600,
   },
   pressed: {
     opacity: 0.6,
-  },
-  error: {
-    color: '#D93025',
   },
 });

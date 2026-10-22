@@ -1,20 +1,42 @@
-import { ActivityIndicator, Pressable, StyleSheet, type PressableProps } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 
+import { Icon, type IconName } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type ButtonProps = Omit<PressableProps, 'children'> & {
   title: string;
-  /** `primary` is the solid green button, `secondary` the soft one. */
-  variant?: 'primary' | 'secondary';
+  /**
+   * `primary` is the solid green button, `secondary` the soft green one, `outline` a white
+   * button with a thin border, `ghost` just text, and `danger` the soft red one.
+   */
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  /** `small` is the round pill used inside list rows. */
+  size?: 'regular' | 'small';
+  icon?: IconName;
   loading?: boolean;
 };
 
-export function Button({ title, variant = 'primary', loading, disabled, style, ...rest }: ButtonProps) {
+export function Button({
+  title,
+  variant = 'primary',
+  size = 'regular',
+  icon,
+  loading,
+  disabled,
+  style,
+  ...rest
+}: ButtonProps) {
   const theme = useTheme();
-  const isPrimary = variant === 'primary';
-  const textColor = isPrimary ? theme.background : theme.tint;
+  const colors = {
+    primary: { background: theme.tint, text: theme.onTint, border: theme.tint },
+    secondary: { background: theme.tintSoft, text: theme.tintText, border: theme.tintSoft },
+    outline: { background: theme.backgroundElement, text: theme.text, border: theme.inputBorder },
+    ghost: { background: 'transparent', text: theme.tintText, border: 'transparent' },
+    danger: { background: theme.dangerSoft, text: theme.danger, border: theme.dangerSoft },
+  }[variant];
+  const small = size === 'small';
 
   return (
     <Pressable
@@ -22,17 +44,21 @@ export function Button({ title, variant = 'primary', loading, disabled, style, .
       disabled={disabled || loading}
       style={(state) => [
         styles.button,
-        { backgroundColor: isPrimary ? theme.tint : theme.tintSoft },
+        small ? styles.small : styles.regular,
+        { backgroundColor: colors.background, borderColor: colors.border },
         (state.pressed || disabled) && styles.dimmed,
         typeof style === 'function' ? style(state) : style,
       ]}
       {...rest}>
       {loading ? (
-        <ActivityIndicator color={textColor} />
+        <ActivityIndicator color={colors.text} />
       ) : (
-        <ThemedText type="smallBold" style={{ color: textColor }}>
-          {title}
-        </ThemedText>
+        <View style={styles.label}>
+          {icon && <Icon name={icon} size={small ? 14 : 18} color={colors.text} />}
+          <ThemedText type={small ? 'smallBold' : 'default'} style={[styles.text, { color: colors.text }]}>
+            {title}
+          </ThemedText>
+        </View>
       )}
     </Pressable>
   );
@@ -40,11 +66,28 @@ export function Button({ title, variant = 'primary', loading, disabled, style, .
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: 48,
-    borderRadius: Spacing.three,
-    paddingHorizontal: Spacing.four,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+  },
+  regular: {
+    minHeight: 54,
+    borderRadius: Radius.button,
+    paddingHorizontal: Spacing.four,
+  },
+  small: {
+    minHeight: 40,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.three,
+  },
+  label: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  text: {
+    fontWeight: 700,
+    textAlign: 'center',
   },
   dimmed: {
     opacity: 0.6,
