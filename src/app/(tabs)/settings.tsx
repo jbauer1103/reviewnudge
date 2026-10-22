@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { useBusiness } from '@/components/business-provider';
@@ -9,16 +9,42 @@ import { ThemedText } from '@/components/themed-text';
 import { Avatar, Card, Divider, ErrorText, Screen, ScreenHeader, SectionLabel } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { canManageBillingHere, openBillingPortal, openCheckout, planOf, PRICE_LABEL, type Plan } from '@/lib/billing';
 import { supabase } from '@/lib/supabase';
 
 export default function SettingsScreen() {
   const theme = useTheme();
   const { session } = useSession();
-  const { business } = useBusiness();
+  const { business, reload } = useBusiness();
+  const [openingBilling, setOpeningBilling] = useState(false);
+  const [billingError, setBillingError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Refresh the plan each time Settings is shown (for example after paying).
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload]),
+  );
+
+  const plan = business ? planOf(business) : null;
+
+  async function billing() {
+    if (!plan) return;
+    setOpeningBilling(true);
+    setBillingError(null);
+    try {
+      await (plan.kind === 'paid' ? openBillingPortal() : openCheckout());
+      // Back from Stripe's page: show the new plan. Stripe tells our server within seconds.
+      await reload();
+    } catch (error) {
+      setBillingError(error instanceof Error ? error.message : 'Something went wrong. Try again.');
+    }
+    setOpeningBilling(false);
+  }
 
   async function logOut() {
     setLoggingOut(true);
@@ -74,6 +100,34 @@ export default function SettingsScreen() {
         <Row title="Edit business details" chevron onPress={() => router.push('/business-setup')} />
       </Card>
 
+      {plan && (
+        <>
+          <SectionLabel>Plan</SectionLabel>
+          <Card style={styles.group}>
+            <View style={styles.row}>
+              <ThemedText
+                type="small"
+                style={[styles.plan, plan.kind === 'ended' || isPastDue(plan) ? { color: theme.danger } : null]}>
+                {describePlan(plan)}
+              </ThemedText>
+            </View>
+            {canManageBillingHere && (
+              <>
+                <Divider />
+                <Row
+                  title={plan.kind === 'paid' ? 'Manage billing' : `Subscribe: ${PRICE_LABEL}`}
+                  color={plan.kind === 'paid' ? undefined : theme.tint}
+                  chevron={plan.kind === 'paid'}
+                  onPress={billing}
+                  loading={openingBilling}
+                />
+              </>
+            )}
+          </Card>
+          <ErrorText>{billingError}</ErrorText>
+        </>
+      )}
+
       <SectionLabel>Account</SectionLabel>
       <Card style={styles.group}>
         <View style={styles.row}>
@@ -114,6 +168,31 @@ export default function SettingsScreen() {
       <ErrorText>{deleteError}</ErrorText>
     </Screen>
   );
+}
+
+function isPastDue(plan: Plan) {
+  return plan.kind === 'paid' && plan.status === 'past_due';
+}
+
+function describePlan(plan: Plan) {
+  switch (plan.kind) {
+    case 'trial':
+      return `Free trial: ${plan.daysLeft} ${plan.daysLeft === 1 ? 'day' : 'days'} left (ends ${formatDate(plan.endsAt)}).`;
+    case 'ended':
+      return 'Your free trial has ended. Subscribe to keep asking for reviews.';
+    case 'paid':
+      if (plan.status === 'past_due') {
+        return 'Your last payment didn’t go through. Please update your card.';
+      }
+      if (!plan.renewsAt) return `Subscribed: ${PRICE_LABEL}.`;
+      return plan.cancelling
+        ? `Subscription cancelled. You can keep using the app until ${formatDate(plan.renewsAt)}.`
+        : `Subscribed: ${PRICE_LABEL}. Renews ${formatDate(plan.renewsAt)}.`;
+  }
+}
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 // One tappable line inside a settings card.
@@ -189,6 +268,10 @@ const styles = StyleSheet.create({
   },
   email: {
     flexShrink: 1,
+  },
+  plan: {
+    flex: 1,
+    paddingVertical: Spacing.three,
   },
   dangerGroup: {
     marginTop: Spacing.three,

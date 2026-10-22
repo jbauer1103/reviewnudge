@@ -9,6 +9,14 @@ export type Business = {
   google_review_url: string | null;
   google_place_id: string | null;
   message_template: string;
+  /** When Business setup was saved. The free trial counts from here. */
+  created_at: string;
+  /** Their Stripe subscription, once they've subscribed (see src/lib/billing.ts). */
+  subscription: {
+    status: string | null;
+    current_period_end: string | null;
+    cancel_at_period_end: boolean;
+  } | null;
 };
 
 type BusinessContextValue = {
@@ -36,10 +44,13 @@ export function useBusiness() {
 async function fetchBusiness(userId: string): Promise<Loaded> {
   const { data, error } = await supabase
     .from('businesses')
-    .select('id, name, google_review_url, google_place_id, message_template')
+    .select(
+      'id, name, google_review_url, google_place_id, message_template, created_at, subscription:subscriptions(status, current_period_end, cancel_at_period_end)',
+    )
     .eq('owner_id', userId)
     .maybeSingle();
-  return { userId, business: data, error: error ? error.message : null };
+  // The subscription comes back as one object (or null): each business has at most one.
+  return { userId, business: data as unknown as Business | null, error: error ? error.message : null };
 }
 
 // Loads the logged-in owner's business. Row-level security means Supabase only

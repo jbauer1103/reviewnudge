@@ -18,6 +18,7 @@ import {
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { askForReview } from '@/lib/ask-for-review';
+import { hasAccess } from '@/lib/billing';
 import { CUSTOMER_COLUMNS, type Customer } from '@/lib/customers';
 import { formatPhone } from '@/lib/phone';
 import { supabase } from '@/lib/supabase';
@@ -67,6 +68,10 @@ export default function CustomersScreen() {
 
   async function ask(customer: Customer) {
     if (!business) return;
+    if (!hasAccess(business)) {
+      setAskError('Your free trial has ended. Go to Settings to see your plan.');
+      return;
+    }
     setAskError(null);
     setAskingId(customer.id);
     try {
