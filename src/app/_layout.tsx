@@ -6,15 +6,26 @@ import { useColorScheme } from 'react-native';
 import { BusinessProvider, useBusiness } from '@/components/business-provider';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { SessionProvider, useSession } from '@/components/session-provider';
+import { Colors } from '@/constants/theme';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
 // Keep the splash screen up until we know whether the owner is logged in.
 SplashScreen.preventAutoHideAsync();
 
+// Navigation colors that match ours, so screens never flash white or black between pages.
+const LightNavTheme = {
+  ...DefaultTheme,
+  colors: { ...DefaultTheme.colors, background: Colors.light.background, primary: Colors.light.tint },
+};
+const DarkNavTheme = {
+  ...DarkTheme,
+  colors: { ...DarkTheme.colors, background: Colors.dark.background, primary: Colors.dark.tint },
+};
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkNavTheme : LightNavTheme}>
       <SessionProvider>
         <BusinessProvider>
           <RootNavigator />
@@ -58,8 +69,6 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* The public page customers open from the review text. No log in needed. */}
-      <Stack.Screen name="r" />
       <Stack.Protected guard={!!session && !!business}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="customer/[id]" />
@@ -71,6 +80,11 @@ function RootNavigator() {
         <Stack.Screen name="sign-in" />
         <Stack.Screen name="auth-callback" />
       </Stack.Protected>
+      {/* Where Stripe sends owners back after paying. No log in needed. */}
+      <Stack.Screen name="billing" />
+      {/* The public page customers open from the review text. No log in needed.
+          It must stay last: the first screen listed is where the app opens. */}
+      <Stack.Screen name="r" />
     </Stack>
   );
 }

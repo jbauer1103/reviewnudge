@@ -10,7 +10,7 @@ export default function AppTabs() {
 
   return (
     <NativeTabs
-      backgroundColor={colors.background}
+      backgroundColor={colors.backgroundElement}
       indicatorColor={colors.tintSoft}
       tintColor={colors.tint}
       labelStyle={{ selected: { color: colors.tint } }}>

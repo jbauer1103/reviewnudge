@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta property="og:title" content="ReviewWhistle">
 <meta property="og:description" content="One tap after the job sends a friendly Google review text from your own phone.">
+<meta property="og:url" content="https://reviewwhistle.com/">
 <title>ReviewWhistle</title>
+<link rel="icon" href="/favicon.png">
 <meta name="description" content="ReviewWhistle helps cleaners, plumbers, HVAC techs, detailers and groomers get more Google reviews. One tap after the job sends a friendly review text from your own phone.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,6 +184,7 @@ footer .wrap { padding-block: 2rem; display: flex; flex-wrap: wrap; justify-cont
   .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .screens, .why { grid-template-columns: 1fr; }
   header nav a.text { display: none; }
+  footer .wrap { flex-direction: column; }
 }
 @media (max-width: 480px) {
   .timeline { grid-template-columns: 1fr; }
@@ -212,10 +215,10 @@ footer .wrap { padding-block: 2rem; display: flex; flex-wrap: wrap; justify-cont
         <h1>The job went great. <em>Now get the review.</em></h1>
         <p class="lede">After each job, pick the customer and tap one button. Your phone opens a friendly text with your Google review link already in it. You hit send. That's it.</p>
         <div class="cta-row">
-          <a class="btn" href="https://reviewnudge.expo.app/sign-in">Get started</a>
+          <a class="btn" href="https://reviewnudge.expo.app/sign-in">Start your free trial</a>
           <a class="btn ghost" href="#how">See how it works</a>
         </div>
-        <p class="fineprint">$39 a month. One plan with everything in it.</p>
+        <p class="fineprint">14 days free, no credit card needed. Then $39 a month, one plan with everything in it.</p>
         <div class="trades" aria-label="Built for">
           <span>Cleaners</span><span>Plumbers</span><span>HVAC</span><span>Auto detailers</span><span>Dog groomers</span>
         </div>
@@ -348,6 +351,7 @@ footer .wrap { padding-block: 2rem; display: flex; flex-wrap: wrap; justify-cont
       </div>
       <div class="price-card">
         <div class="price"><b>$39</b><span>/ month</span></div>
+        <p class="fineprint">Billed in CAD in Canada and USD in the US. Starts with a 14-day free trial, no credit card needed.</p>
         <ul>
           <li>Unlimited review requests</li>
           <li>Customer list with phone contacts import</li>
@@ -356,7 +360,7 @@ footer .wrap { padding-block: 2rem; display: flex; flex-wrap: wrap; justify-cont
           <li>48-hour reminder email</li>
           <li>Dashboard of requests and reviews gained</li>
         </ul>
-        <a class="btn" href="https://reviewnudge.expo.app/sign-in">Get started</a>
+        <a class="btn" href="https://reviewnudge.expo.app/sign-in">Start your free trial</a>
       </div>
     </div>
   </section>
@@ -385,8 +389,16 @@ footer .wrap { padding-block: 2rem; display: flex; flex-wrap: wrap; justify-cont
           <p>Yes. ReviewWhistle uses the regular Messages app on both.</p>
         </details>
         <details>
-          <summary>Can I cancel?</summary>
-          <p>Yes. You can delete your account from Settings at any time, and your customer list and history are deleted with it.</p>
+          <summary>How does the free trial work?</summary>
+          <p>You get 14 days free, with no credit card needed. If you want to keep going after that, subscribe for $39 a month from Settings. If you don't subscribe, you simply stop being able to send new review requests. You're never charged without signing up.</p>
+        </details>
+        <details id="refunds">
+          <summary>Can I cancel? What about refunds?</summary>
+          <p>You can cancel anytime in Settings → Manage billing. You keep access until the end of the month you've already paid for, and you won't be charged again. We don't refund partial months. If you were charged by mistake, email us within 30 days and we'll refund it in full.</p>
+        </details>
+        <details>
+          <summary>How do I reach you?</summary>
+          <p>Email <a href="mailto:jeff@reviewwhistle.com">jeff@reviewwhistle.com</a>. A real person answers, usually within one business day.</p>
         </details>
       </div>
     </div>
@@ -395,16 +407,26 @@ footer .wrap { padding-block: 2rem; display: flex; flex-wrap: wrap; justify-cont
   <section class="closing">
     <div class="wrap">
       <h2>Your next happy customer is one tap away from a five-star review.</h2>
-      <a class="btn" href="https://reviewnudge.expo.app/sign-in">Get started with ReviewWhistle</a>
+      <a class="btn" href="https://reviewnudge.expo.app/sign-in">Start your 14-day free trial</a>
     </div>
   </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <span>© 2026 ReviewWhistle</span>
-    <span>Made in London, Ontario</span>
+    <span>© 2026 ReviewWhistle · London, Ontario, Canada</span>
+    <span><a href="#refunds">Cancellation and refunds</a> · <a href="mailto:jeff@reviewwhistle.com">jeff@reviewwhistle.com</a></span>
   </div>
 </footer>
+
+<script>
+  // Open the refunds answer when someone follows a link to it.
+  function openFromHash() {
+    var el = location.hash && document.getElementById(location.hash.slice(1));
+    if (el && el.tagName === 'DETAILS') el.open = true;
+  }
+  window.addEventListener('hashchange', openFromHash);
+  openFromHash();
+</script>
 </body>
 </html>

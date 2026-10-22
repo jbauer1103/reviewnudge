@@ -1,9 +1,10 @@
-# ReviewNudge
+# ReviewWhistle
 
 ## Who I'm working with
 Jeff is a first-time app builder (has only made a few Lovable websites). Explain things in plain English and keep explanations short.
 
-## What ReviewNudge is
+## What ReviewWhistle is
+The app was called ReviewNudge until 2026-10-22, when Jeff renamed it (a company called ReviewNudger already exists) and bought the domain reviewwhistle.com. Behind-the-scenes names still say reviewnudge on purpose: the GitHub repo, the Expo slug and project, the app link scheme `reviewnudge://` (allowed in Supabase redirect URLs), the npm package name and https://reviewnudge.expo.app. Changing those would break log in links and hosting, so only change them together and on purpose.
 A simple app for small service businesses in Canada and the US (cleaners, plumbers, HVAC, auto detailers, dog groomers). After a job, the owner picks the customer and taps one button. The app opens their phone's own Messages app with a friendly, pre-written text containing their Google review link, and the owner hits send. The app logs the request, sends one follow-up email 48 hours later if the customer has an email, and shows a dashboard of requests sent and Google reviews gained. Price: $39/month, paid on our website (not inside the app).
 
 ## Tech stack (use exactly this)
@@ -51,13 +52,19 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - `supabase/functions/delete-account/` — deletes the caller's login; the database cascades to their business, customers and review requests. Used by Settings → Delete account (two taps).
 - `src/app/r.tsx` — the public customer page at `/r?b=<business id>` (query string so it works on a static host) (no log in): "Leave a Google review" or "Tell us privately". Reads data only through the `get_review_page` and `submit_feedback` database functions; private feedback lands in the `feedback` table and shows on the Dashboard. Review texts link here once `EXPO_PUBLIC_REVIEW_PAGE_URL` is set in .env; until then they link straight to Google.
 - `supabase/functions/send-follow-ups/` — emails customers (with an email) one reminder 48 hours after they were asked, through Resend. Needs Supabase secret `RESEND_API_KEY`; optional `RESEND_FROM` and `REVIEW_PAGE_URL`. Runs at :17 every hour from pg_cron (`supabase/migrations/20261021150000_schedule_follow_ups.sql`), called with the publishable key (safe: it only sends what is due, once).
+- Billing (Stripe, test mode first): `supabase/functions/create-checkout/` (Subscribe → Stripe payment page; price is created in Stripe automatically on first use: $39/month CAD, or USD for US cards, lookup key `monthly_39`), `billing-portal/` (Manage billing: card, invoices, cancel), `stripe-webhook/` (Stripe tells us about subscription changes; checks Stripe's signature). Shared Stripe helper in `supabase/functions/_shared/stripe.ts`. Secret: `STRIPE_SECRET_KEY` only. The Stripe webhook creates itself on the first checkout and its signing secret is saved in the private `stripe_settings` table (no access for app users); a `STRIPE_WEBHOOK_SECRET` function secret would override it. Optional `PRODUCT_NAME` (default ReviewWhistle) and `SITE_URL`. The `subscriptions` table is read-only for owners (only the server writes it). 14-day free trial with no card, counted from the business's created_at; trial days carry over when subscribing early. `src/lib/billing.ts` has the plan logic; Settings shows the plan; asking for reviews stops when the trial has ended unpaid. Subscribe / Manage billing buttons show only on the web version and in Expo Go (Apple and Google don't allow linking to outside payment in store apps). Stripe returns people to the public `/billing` page. Delete account cancels the Stripe subscription first.
 - `src/components/google-listing-search.tsx` — the search box and results on Business setup.
 - `supabase/migrations/` — database tables and row-level security, run by hand in the Supabase SQL Editor.
 - `scripts/test-login-code.mjs` — testing only: makes a login code for a second test account (needs the secret key in `.env.admin`).
 - `src/lib/ask-for-review.ts` — opens Messages (expo-sms) with the filled-in review text, then logs a row in `review_requests`. The link is the Google review link for now; later it becomes our customer web page.
 - `src/lib/phone.ts` — turns typed phone numbers into +1XXXXXXXXXX and shows them as (416) 555-1234.
+<<<<<<< HEAD
 - `src/constants/theme.ts` — colors and spacing (brand green is `tint`).
 - `public/landing.html` — the marketing landing page (plain HTML, hand-built instead of Lovable so it lives in the repo). Expo copies `public/` into the web export, so it goes live at https://reviewnudge.expo.app/landing.html with the normal web redeploy. Its "Get started" buttons go to /sign-in.
+=======
+- `src/constants/theme.ts` — colors, corner roundness (`Radius`) and spacing (brand green is `tint`; light and dark versions of every color).
+- `src/components/ui.tsx` — shared look: `Screen` (scrolling page), `ScreenHeader` (big title), `Card`, `SectionLabel`, `TextField` (labelled input), `ErrorText`, `Avatar` (initials), `Divider`. `button.tsx` has the button styles (primary, secondary, outline, ghost, danger; `size="small"` for the pill in list rows). `icon.tsx` maps the app's few icons to SF Symbols (iPhone) and Material Symbols (Android, web) through expo-symbols. `back-link.tsx` is the "‹ Back" link.
+>>>>>>> origin/main
 
 ## Progress
 - Session 1: Expo SDK 57 app shell with three placeholder tabs (Customers, Dashboard, Settings).
@@ -68,8 +75,14 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 6: Dashboard with review requests sent (total and this month) and Google reviews gained since joining (latest count minus google_review_count_at_start). Pull down to refresh.
 - Session 7: Settings → Delete account (confirm step), tested on a throwaway account.
 - Session 8: customer page and private feedback. Published with EAS Hosting at https://reviewnudge.expo.app (Expo project @jbauer1103/reviewnudge); the page is /r?b=<business id> because static hosting does not serve dynamic routes. EXPO_PUBLIC_REVIEW_PAGE_URL in .env and the REVIEW_PAGE_URL function secret point texts and emails at it. Redeploy the web version with: npx expo export -p web && npx eas-cli@latest deploy --prod
+- Session 10: front-end redesign (no behavior changes). Design made in Claude Design: https://claude.ai/artifact/FmExDPmZ4BtFaaw4GLr4kT. Off-white page, white cards, big bold titles, green hero card for reviews gained, text-bubble preview of the review message.
 - Session 9: 48-hour follow-up email deployed, scheduled hourly, RESEND_API_KEY saved, test email to Jeff worked. Jeff has no domain yet (2026-10-21): until one is verified in Resend, follow-ups only reach jbauer7@uwo.ca.
+<<<<<<< HEAD
 - Landing page (2026-10-21): `public/landing.html` written. Goes live with the next web redeploy. Before real customers sign up from it, a domain must be verified in Resend (log in emails only reach Jeff today) and Stripe billing added.
+=======
+- 2026-10-22: renamed to ReviewWhistle; Jeff bought reviewwhistle.com and verified it in Resend. Follow-ups (RESEND_FROM secret = `ReviewWhistle <jeff@reviewwhistle.com>`) and login emails (Supabase SMTP sender jeff@reviewwhistle.com, name ReviewWhistle) now send from it, so they can reach any inbox. Replies go to Jeff's jeff@reviewwhistle.com mailbox.
+- Session 11 (2026-10-22): Stripe billing code, database table and functions deployed to Supabase. Jeff uses a separate ReviewWhistle account under his existing Stripe login. App renamed ReviewWhistle (reviewwhistle.com).
+>>>>>>> origin/main
 
 ## After the MVP backend works (Jeff, 2026-10-21)
 - Polished front-end redesign of the app using Claude Design.

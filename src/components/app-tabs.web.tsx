@@ -10,6 +10,7 @@ import { type ComponentRef, type Ref } from 'react';
 import { Pressable, View, StyleSheet } from 'react-native';
 
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
@@ -44,7 +45,7 @@ export function TabButton({ children, isFocused, ref, ...props }: TabTriggerSlot
       ref={ref as unknown as Ref<ComponentRef<typeof View>>}
       style={({ pressed }) => pressed && styles.pressed}>
       <ThemedView type={isFocused ? 'tintSoft' : 'backgroundElement'} style={styles.tabButtonView}>
-        <ThemedText type="small" themeColor={isFocused ? 'tint' : 'textSecondary'}>
+        <ThemedText type="smallBold" themeColor={isFocused ? 'tintText' : 'textSecondary'}>
           {children}
         </ThemedText>
       </ThemedView>
@@ -53,9 +54,10 @@ export function TabButton({ children, isFocused, ref, ...props }: TabTriggerSlot
 }
 
 export function CustomTabList(props: TabListProps) {
+  const theme = useTheme();
   return (
     <View {...props} style={styles.tabListContainer}>
-      <ThemedView type="backgroundElement" style={styles.innerContainer}>
+      <ThemedView type="backgroundElement" style={[styles.innerContainer, { borderColor: theme.border }]}>
         {props.children}
       </ThemedView>
     </View>
@@ -75,6 +77,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.two,
     borderRadius: Spacing.five,
+    borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -86,8 +89,8 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   tabButtonView: {
-    paddingVertical: Spacing.one,
+    paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
-    borderRadius: Spacing.three,
+    borderRadius: Spacing.four,
   },
 });

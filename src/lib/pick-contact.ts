@@ -10,7 +10,7 @@ export async function pickContact(): Promise<PickedContact | null> {
   const permission = await requestPermissionsAsync();
   if (permission.status !== 'granted') {
     throw new Error(
-      'ReviewNudge needs permission to see your contacts. You can allow it in your phone’s Settings, or type the customer in.',
+      'ReviewWhistle needs permission to see your contacts. You can allow it in your phone’s Settings, or type the customer in.',
     );
   }
 
