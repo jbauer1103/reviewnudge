@@ -58,13 +58,9 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - `scripts/test-login-code.mjs` — testing only: makes a login code for a second test account (needs the secret key in `.env.admin`).
 - `src/lib/ask-for-review.ts` — opens Messages (expo-sms) with the filled-in review text, then logs a row in `review_requests`. The link is the Google review link for now; later it becomes our customer web page.
 - `src/lib/phone.ts` — turns typed phone numbers into +1XXXXXXXXXX and shows them as (416) 555-1234.
-<<<<<<< HEAD
-- `src/constants/theme.ts` — colors and spacing (brand green is `tint`).
-- `public/landing.html` — the marketing landing page (plain HTML, hand-built instead of Lovable so it lives in the repo). Expo copies `public/` into the web export, so it goes live at https://reviewnudge.expo.app/landing.html with the normal web redeploy. Its "Get started" buttons go to /sign-in.
-=======
 - `src/constants/theme.ts` — colors, corner roundness (`Radius`) and spacing (brand green is `tint`; light and dark versions of every color).
 - `src/components/ui.tsx` — shared look: `Screen` (scrolling page), `ScreenHeader` (big title), `Card`, `SectionLabel`, `TextField` (labelled input), `ErrorText`, `Avatar` (initials), `Divider`. `button.tsx` has the button styles (primary, secondary, outline, ghost, danger; `size="small"` for the pill in list rows). `icon.tsx` maps the app's few icons to SF Symbols (iPhone) and Material Symbols (Android, web) through expo-symbols. `back-link.tsx` is the "‹ Back" link.
->>>>>>> origin/main
+- `website/` — the marketing site for https://reviewwhistle.com (plain HTML, hand-built instead of Lovable), separate from the app. Hosted on Netlify (free; EAS Hosting charges for custom domains). To update it, drag the `website` folder onto the site's Deploys page in Netlify. Buttons go to the web app's sign-in at https://reviewnudge.expo.app/sign-in. Shows the price, 14-day trial, contact email and refund policy because Stripe checks for them.
 
 ## Progress
 - Session 1: Expo SDK 57 app shell with three placeholder tabs (Customers, Dashboard, Settings).
@@ -77,12 +73,9 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 8: customer page and private feedback. Published with EAS Hosting at https://reviewnudge.expo.app (Expo project @jbauer1103/reviewnudge); the page is /r?b=<business id> because static hosting does not serve dynamic routes. EXPO_PUBLIC_REVIEW_PAGE_URL in .env and the REVIEW_PAGE_URL function secret point texts and emails at it. Redeploy the web version with: npx expo export -p web && npx eas-cli@latest deploy --prod
 - Session 10: front-end redesign (no behavior changes). Design made in Claude Design: https://claude.ai/artifact/FmExDPmZ4BtFaaw4GLr4kT. Off-white page, white cards, big bold titles, green hero card for reviews gained, text-bubble preview of the review message.
 - Session 9: 48-hour follow-up email deployed, scheduled hourly, RESEND_API_KEY saved, test email to Jeff worked. Jeff has no domain yet (2026-10-21): until one is verified in Resend, follow-ups only reach jbauer7@uwo.ca.
-<<<<<<< HEAD
-- Landing page (2026-10-21): `public/landing.html` written. Goes live with the next web redeploy. Before real customers sign up from it, a domain must be verified in Resend (log in emails only reach Jeff today) and Stripe billing added.
-=======
 - 2026-10-22: renamed to ReviewWhistle; Jeff bought reviewwhistle.com and verified it in Resend. Follow-ups (RESEND_FROM secret = `ReviewWhistle <jeff@reviewwhistle.com>`) and login emails (Supabase SMTP sender jeff@reviewwhistle.com, name ReviewWhistle) now send from it, so they can reach any inbox. Replies go to Jeff's jeff@reviewwhistle.com mailbox.
 - Session 11 (2026-10-22): Stripe billing code, database table and functions deployed to Supabase. Jeff uses a separate ReviewWhistle account under his existing Stripe login. App renamed ReviewWhistle (reviewwhistle.com).
->>>>>>> origin/main
+- Landing page (2026-10-22): `website/index.html` with trial, CAD/USD price, contact email and refund policy (no refunds for partial months; mistaken charges refunded within 30 days). Hosted on Netlify at reviewwhistle.com.
 
 ## After the MVP backend works (Jeff, 2026-10-21)
 - Polished front-end redesign of the app using Claude Design.
