@@ -7,7 +7,8 @@ import { supabase } from '@/lib/supabase';
 // Every new business gets this many free days, counted from Business setup.
 // Keep in sync with TRIAL_DAYS in supabase/functions/create-checkout/index.ts.
 export const TRIAL_DAYS = 14;
-export const PRICE_LABEL = '$39/month';
+// Stripe's payment page charges CAD in Canada and USD in the US (create-checkout).
+export const PRICE_LABEL = '$39 CAD or $29 USD a month';
 
 // Apple and Google don't allow apps to send people to pay on a website (outside the US).
 // So the Subscribe and Manage billing buttons only show on the web version, plus while
