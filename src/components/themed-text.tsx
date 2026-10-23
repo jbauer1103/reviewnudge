@@ -1,6 +1,6 @@
-import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
+import { Platform, StyleSheet, Text, type TextProps, type TextStyle } from 'react-native';
 
-import { Fonts, ThemeColor } from '@/constants/theme';
+import { Fonts, fontFamilyFor, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
@@ -22,7 +22,22 @@ export type ThemedTextProps = TextProps & {
 export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
   const theme = useTheme();
 
-  return <Text style={[{ color: theme[themeColor ?? 'text'] }, styles[type], style]} {...rest} />;
+  const flat = StyleSheet.flatten([{ color: theme[themeColor ?? 'text'] }, styles[type], style]);
+  return <Text style={[flat, websiteFont(flat)]} {...rest} />;
+}
+
+/**
+ * Picks the Plus Jakarta Sans file that matches the text's weight. The weight itself is then reset,
+ * because each file already is that weight (otherwise phones would thicken it a second time).
+ */
+export function websiteFont(style: TextStyle) {
+  if (style.fontFamily) return null;
+  const weight = style.fontWeight === 'bold' ? 700 : Number(style.fontWeight) || 500;
+  return {
+    fontFamily: fontFamilyFor(weight, style.fontStyle === 'italic'),
+    fontWeight: 'normal' as const,
+    fontStyle: 'normal' as const,
+  };
 }
 
 const styles = StyleSheet.create({
@@ -44,21 +59,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 48,
     fontWeight: 800,
-    lineHeight: 54,
-    letterSpacing: -1,
+    lineHeight: 52,
+    letterSpacing: -1.6,
   },
   subtitle: {
     fontSize: 26,
     lineHeight: 32,
     fontWeight: 800,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
   /** The big heading at the top of each screen. */
   largeTitle: {
     fontSize: 34,
     lineHeight: 40,
     fontWeight: 800,
-    letterSpacing: -0.7,
+    letterSpacing: -1.1,
   },
   /** The small line above a screen heading, like the business name. */
   eyebrow: {
@@ -67,12 +82,12 @@ const styles = StyleSheet.create({
     fontWeight: 600,
     letterSpacing: 0.3,
   },
-  /** Small capitals above a group of cards, like "PRIVATE FEEDBACK". */
+  /** Small green capitals above a group of cards, like "PRIVATE FEEDBACK" (the website's section labels). */
   sectionLabel: {
     fontSize: 13,
     lineHeight: 18,
-    fontWeight: 700,
-    letterSpacing: 0.8,
+    fontWeight: 800,
+    letterSpacing: 1,
     textTransform: 'uppercase',
   },
   link: {

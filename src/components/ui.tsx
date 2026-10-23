@@ -9,10 +9,11 @@ import {
   type TextInputProps,
   type ViewProps,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
-import { BottomTabInset, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, fontFamilyFor, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 // Small building blocks shared by every screen, so they all look the same.
@@ -85,21 +86,45 @@ export function ScreenHeader({
   );
 }
 
-/** A white rounded box with a thin border. */
+/** A white rounded box with a thin border and a soft shadow, like the cards on the website. */
 export function Card({ style, ...rest }: ViewProps) {
   const theme = useTheme();
   return (
     <View
-      style={[styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.border }, style]}
+      style={[
+        styles.card,
+        { backgroundColor: theme.backgroundElement, borderColor: theme.border, boxShadow: CardShadow },
+        style,
+      ]}
       {...rest}
     />
+  );
+}
+
+/** The website's soft card shadow. */
+export const CardShadow = '0px 10px 24px -16px rgba(15, 30, 46, 0.35)';
+
+/** The ReviewWhistle whistle-and-star logo, with the name beside it unless `markOnly`. */
+export function Logo({ size = 38, markOnly }: { size?: number; markOnly?: boolean }) {
+  return (
+    <View style={styles.logo} accessibilityLabel="ReviewWhistle" accessibilityRole="image">
+      <Image
+        source={require('@/assets/images/logo.png')}
+        style={{ width: size, height: size, borderRadius: size * 0.29 }}
+      />
+      {!markOnly && (
+        <ThemedText style={[styles.logoName, { fontSize: size * 0.58, lineHeight: size * 0.75 }]}>
+          ReviewWhistle
+        </ThemedText>
+      )}
+    </View>
   );
 }
 
 /** Small capitals above a group of cards. */
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <ThemedText type="sectionLabel" themeColor="textSecondary" style={styles.sectionLabel}>
+    <ThemedText type="sectionLabel" themeColor="tint" style={styles.sectionLabel}>
       {children}
     </ThemedText>
   );
@@ -261,6 +286,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 50,
     fontSize: 16,
+    fontFamily: fontFamilyFor(500),
     paddingVertical: Spacing.two,
   },
   inputMultiline: {
@@ -276,5 +302,14 @@ const styles = StyleSheet.create({
   avatar: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  logo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two + Spacing.half,
+  },
+  logoName: {
+    fontWeight: 800,
+    letterSpacing: -0.4,
   },
 });
