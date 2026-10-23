@@ -1,14 +1,15 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, Switch, View } from 'react-native';
 
 import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { useBusiness } from '@/components/business-provider';
+import { ThemedText } from '@/components/themed-text';
 import { ErrorText, Screen, ScreenHeader, TextField } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { CUSTOMER_COLUMNS, type Customer } from '@/lib/customers';
+import { CUSTOMER_COLUMNS, SMS_COLUMNS, type Customer, type CustomerSms } from '@/lib/customers';
 import { formatPhone, normalizePhone } from '@/lib/phone';
 import { pickContact } from '@/lib/pick-contact';
 import { supabase } from '@/lib/supabase';
@@ -24,6 +25,9 @@ export default function CustomerScreen() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  // When they agreed to get texts (null = not yet), and if they replied STOP.
+  const [consentAt, setConsentAt] = useState<string | null>(null);
+  const [optedOut, setOptedOut] = useState(false);
   const [saving, setSaving] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,14 +36,16 @@ export default function CustomerScreen() {
     if (isNew) return;
     supabase
       .from('customers')
-      .select(CUSTOMER_COLUMNS)
+      .select(`${CUSTOMER_COLUMNS}, ${SMS_COLUMNS}`)
       .eq('id', id)
-      .maybeSingle<Customer>()
+      .maybeSingle<Customer & CustomerSms>()
       .then(({ data }) => {
         if (data) {
           setName(data.name);
           setPhone(formatPhone(data.phone));
           setEmail(data.email ?? '');
+          setConsentAt(data.sms_consent_at);
+          setOptedOut(data.sms_opted_out_at !== null);
         } else {
           setError('Couldn’t find this customer.');
         }
@@ -68,7 +74,12 @@ export default function CustomerScreen() {
 
     setSaving(true);
     setError(null);
-    const values = { name: trimmedName, phone: normalizedPhone, email: trimmedEmail || null };
+    const values = {
+      name: trimmedName,
+      phone: normalizedPhone,
+      email: trimmedEmail || null,
+      sms_consent_at: consentAt,
+    };
     // Row-level security only allows customers of the owner's own business.
     const { error: saveError } = isNew
       ? await supabase.from('customers').insert({ ...values, business_id: business.id })
@@ -163,6 +174,23 @@ export default function CustomerScreen() {
               textContentType="emailAddress"
             />
 
+            <View style={styles.consent}>
+              <View style={styles.consentText}>
+                <ThemedText type="smallBold">Agreed to get texts</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {optedOut
+                    ? 'They replied STOP, so ReviewWhistle can’t text them.'
+                    : 'Only switch this on if they said it’s OK to text them (for example, when you booked the job). The law needs it.'}
+                </ThemedText>
+              </View>
+              <Switch
+                accessibilityLabel="Agreed to get texts"
+                value={consentAt !== null}
+                onValueChange={(on) => setConsentAt(on ? new Date().toISOString() : null)}
+                trackColor={{ true: theme.tint }}
+              />
+            </View>
+
             <ErrorText>{error}</ErrorText>
 
             <View style={styles.buttons}>
@@ -188,6 +216,15 @@ export default function CustomerScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  consent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
+  consentText: {
+    flex: 1,
+    gap: Spacing.half,
   },
   buttons: {
     gap: Spacing.one,
