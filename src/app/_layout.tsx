@@ -1,31 +1,26 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { useFonts } from 'expo-font';
+import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 
 import { BusinessProvider, useBusiness } from '@/components/business-provider';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { SessionProvider, useSession } from '@/components/session-provider';
-import { Colors } from '@/constants/theme';
+import { Colors, FontFiles } from '@/constants/theme';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
 // Keep the splash screen up until we know whether the owner is logged in.
 SplashScreen.preventAutoHideAsync();
 
-// Navigation colors that match ours, so screens never flash white or black between pages.
-const LightNavTheme = {
+// Navigation colors that match ours, so screens never flash white between pages.
+const NavTheme = {
   ...DefaultTheme,
   colors: { ...DefaultTheme.colors, background: Colors.light.background, primary: Colors.light.tint },
 };
-const DarkNavTheme = {
-  ...DarkTheme,
-  colors: { ...DarkTheme.colors, background: Colors.dark.background, primary: Colors.dark.tint },
-};
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkNavTheme : LightNavTheme}>
+    <ThemeProvider value={NavTheme}>
       <SessionProvider>
         <BusinessProvider>
           <RootNavigator />
@@ -40,7 +35,9 @@ export default function RootLayout() {
 function RootNavigator() {
   const { session, isLoading } = useSession();
   const { business, isLoading: businessLoading } = useBusiness();
-  const loading = isLoading || (!!session && businessLoading);
+  // The website's font. If it fails to load, the phone's own font is used instead.
+  const [fontsLoaded, fontError] = useFonts(FontFiles);
+  const loading = isLoading || (!!session && businessLoading) || (!fontsLoaded && !fontError);
 
   useEffect(() => {
     if (!loading) SplashScreen.hide();

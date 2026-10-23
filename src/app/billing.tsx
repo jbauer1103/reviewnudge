@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Logo } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -29,11 +30,12 @@ export default function BillingReturnPage() {
         { paddingTop: insets.top + Spacing.six, paddingBottom: insets.bottom + Spacing.four },
       ]}>
       <ThemedView style={styles.inner}>
+        <Logo />
         <ThemedText type="subtitle">{subscribed ? 'Thank you, you’re subscribed!' : 'All done'}</ThemedText>
         <ThemedText themeColor="textSecondary">
           On your phone? Tap Done (or ✕) at the top to go back to the app.
         </ThemedText>
-        <Button title="Go to Settings" variant="secondary" onPress={() => router.replace('/settings')} />
+        <Button title="Go to Settings" onPress={() => router.replace('/settings')} />
       </ThemedView>
     </ScrollView>
   );

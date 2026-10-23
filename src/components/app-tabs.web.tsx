@@ -7,15 +7,16 @@ import {
   TabListProps,
 } from 'expo-router/ui';
 import { type ComponentRef, type Ref } from 'react';
-import { Pressable, View, StyleSheet } from 'react-native';
+import { Pressable, View, StyleSheet, useWindowDimensions } from 'react-native';
 
+import { Logo } from '@/components/ui';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
-// Web version of the tab bar, used when previewing the app in a browser.
+// Web version of the tab bar: a header like the website's, with the logo on the left.
 export default function AppTabs() {
   return (
     <Tabs>
@@ -44,8 +45,8 @@ export function TabButton({ children, isFocused, ref, ...props }: TabTriggerSlot
       // expo-router types the slot ref loosely, so narrow it for Pressable.
       ref={ref as unknown as Ref<ComponentRef<typeof View>>}
       style={({ pressed }) => pressed && styles.pressed}>
-      <ThemedView type={isFocused ? 'tintSoft' : 'backgroundElement'} style={styles.tabButtonView}>
-        <ThemedText type="smallBold" themeColor={isFocused ? 'tintText' : 'textSecondary'}>
+      <ThemedView type={isFocused ? 'tint' : 'backgroundElement'} style={styles.tabButtonView}>
+        <ThemedText type="smallBold" themeColor={isFocused ? 'onTint' : 'textSecondary'}>
           {children}
         </ThemedText>
       </ThemedView>
@@ -55,12 +56,19 @@ export function TabButton({ children, isFocused, ref, ...props }: TabTriggerSlot
 
 export function CustomTabList(props: TabListProps) {
   const theme = useTheme();
+  // On a phone-sized browser only the logo's icon fits beside the tabs.
+  const narrow = useWindowDimensions().width < 560;
   return (
-    <View {...props} style={styles.tabListContainer}>
-      <ThemedView type="backgroundElement" style={[styles.innerContainer, { borderColor: theme.border }]}>
-        {props.children}
-      </ThemedView>
-    </View>
+    <ThemedView
+      type="backgroundElement"
+      style={[styles.tabListContainer, { borderColor: theme.border }]}>
+      <View style={styles.innerContainer}>
+        <Logo size={32} markOnly={narrow} />
+        <View {...props} style={styles.tabs}>
+          {props.children}
+        </View>
+      </View>
+    </ThemedView>
   );
 }
 
@@ -68,29 +76,31 @@ const styles = StyleSheet.create({
   tabListContainer: {
     position: 'absolute',
     width: '100%',
-    padding: Spacing.three,
-    justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row',
+    borderBottomWidth: 1,
+    paddingVertical: Spacing.three - Spacing.half,
+    paddingHorizontal: Spacing.three + Spacing.one,
   },
   innerContainer: {
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.two,
-    borderRadius: Spacing.five,
-    borderWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexGrow: 1,
-    gap: Spacing.two,
+    width: '100%',
     maxWidth: MaxContentWidth,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  tabs: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
   },
   pressed: {
     opacity: 0.7,
   },
   tabButtonView: {
     paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    borderRadius: Spacing.four,
+    paddingHorizontal: Spacing.three - Spacing.one,
+    borderRadius: 12,
   },
 });

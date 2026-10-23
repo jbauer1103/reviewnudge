@@ -197,7 +197,7 @@ export default function BusinessSetupScreen() {
         />
 
         <View style={styles.previewWrap}>
-          <ThemedText type="sectionLabel" themeColor="textSecondary">
+          <ThemedText type="sectionLabel" themeColor="tint">
             Preview
           </ThemedText>
           <View style={[styles.bubble, { backgroundColor: theme.tint }]}>

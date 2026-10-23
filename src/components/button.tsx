@@ -46,6 +46,7 @@ export function Button({
         styles.button,
         small ? styles.small : styles.regular,
         { backgroundColor: colors.background, borderColor: colors.border },
+        variant === 'primary' && !small && styles.primaryShadow,
         (state.pressed || disabled) && styles.dimmed,
         typeof style === 'function' ? style(state) : style,
       ]}
@@ -68,7 +69,11 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
+  },
+  /** The green glow under the website's main buttons. */
+  primaryShadow: {
+    boxShadow: '0px 10px 24px -12px rgba(15, 123, 95, 0.7)',
   },
   regular: {
     minHeight: 54,

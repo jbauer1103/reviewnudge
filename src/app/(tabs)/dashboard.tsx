@@ -94,7 +94,7 @@ export default function DashboardScreen() {
     <Screen hasTabs refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
       <ScreenHeader eyebrow={business?.name} title="Dashboard" />
 
-      <View style={[styles.hero, { backgroundColor: theme.hero }]}>
+      <View style={[styles.hero, { backgroundColor: theme.hero, boxShadow: HeroShadow }]}>
         <ThemedText type="smallBold" style={{ color: theme.heroTextSoft }}>
           Google reviews gained since you joined
         </ThemedText>
@@ -104,7 +104,7 @@ export default function DashboardScreen() {
               <ThemedText type="title" style={{ color: theme.heroText }}>
                 {gained != null ? `+${gained}` : '–'}
               </ThemedText>
-              <ThemedText style={styles.stars}>★★★★★</ThemedText>
+              <ThemedText style={[styles.stars, { color: theme.star }]}>★★★★★</ThemedText>
             </View>
             <ThemedText type="small" style={{ color: theme.heroTextSoft }}>
               {stats?.reviewsNow != null && stats.reviewsAtStart != null
@@ -131,7 +131,7 @@ export default function DashboardScreen() {
 
       <View style={styles.tiles}>
         <Card style={styles.tile}>
-          <ThemedText type="smallBold" themeColor="textSecondary">
+          <ThemedText type="smallBold" themeColor="textMuted">
             Requests sent
           </ThemedText>
           <ThemedText type="subtitle" style={styles.tileNumber}>
@@ -142,7 +142,7 @@ export default function DashboardScreen() {
           </ThemedText>
         </Card>
         <Card style={styles.tile}>
-          <ThemedText type="smallBold" themeColor="textSecondary">
+          <ThemedText type="smallBold" themeColor="textMuted">
             This month
           </ThemedText>
           <ThemedText type="subtitle" style={styles.tileNumber}>
@@ -180,6 +180,9 @@ export default function DashboardScreen() {
   );
 }
 
+/** The green glow under the big card, like the website's green buttons. */
+const HeroShadow = '0px 18px 36px -20px rgba(15, 123, 95, 0.8)';
+
 const styles = StyleSheet.create({
   hero: {
     borderRadius: Radius.hero,
@@ -192,7 +195,6 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   stars: {
-    color: '#FFD166',
     fontSize: 18,
     letterSpacing: 2,
   },
@@ -204,7 +206,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
     justifyContent: 'center',
     paddingHorizontal: Spacing.three,
-    borderRadius: Radius.pill,
+    borderRadius: Radius.button,
     backgroundColor: '#FFFFFF',
   },
   pressed: {
@@ -219,8 +221,9 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   tileNumber: {
-    fontSize: 32,
-    lineHeight: 38,
+    fontSize: 40,
+    lineHeight: 46,
+    letterSpacing: -1.2,
   },
   feedback: {
     gap: Spacing.two,
