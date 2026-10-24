@@ -41,7 +41,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 
 ## Project layout
 - `src/app/` — screens (every file is a screen). `_layout.tsx` shows the tabs when logged in, the log in screens when not.
-  - `sign-in.tsx` = log in with an email magic link, `auth-callback.tsx` = where the email link lands
+  - `sign-in.tsx` = log in with an email magic link, `auth-callback.tsx` = where the email link lands. Links carry `?token_hash=` and log in only when the owner taps "Log me in" (work email scanners like uwo.ca / Microsoft 365 open links and used up one-time links). The Supabase "Magic link or OTP" and "Confirm sign up" templates link to `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email` (was `{{ .ConfirmationURL }}`) and say ReviewWhistle.
   - `(tabs)/_layout.tsx` sets up the tab bar: `(tabs)/index.tsx` = Customers (list and search), `(tabs)/dashboard.tsx` = Dashboard, `(tabs)/settings.tsx` = Settings (with Log out)
 - `src/app/customer/[id].tsx` — add a customer (`/customer/new`) or edit/delete one. Phone is required (needed to text them); email is optional.
 - `src/app/business-setup.tsx` — Business setup (name, Google review link, review text). Shown after the first log in until a business is saved, and from Settings → Edit business details.
@@ -77,6 +77,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 11 (2026-10-22): Stripe billing code, database table and functions deployed to Supabase. Jeff uses a separate ReviewWhistle account under his existing Stripe login. App renamed ReviewWhistle (reviewwhistle.com).
 - 2026-10-23: web app also served at https://app.reviewwhistle.com (EAS Hosting custom domain; Expo account jbauer1103 on a paid plan). GoDaddy records: TXT _cf-custom-hostname.app, CNAME _acme-challenge.app, CNAME app → origin.expo.app. reviewnudge.expo.app keeps working for links already sent. Twilio texting is on hold (Jeff, 2026-10-23) until paying customers ask for it.
 - 2026-10-23: app restyled to match the website (whistle logo, Plus Jakarta Sans font, website colors, always light). App icons, splash and favicon are the whistle logo too.
+- 2026-10-24: scanner-proof login links ("Log me in" button), Supabase Site URL set to https://app.reviewwhistle.com. Tested by Jeff.
 - Landing page (2026-10-22): `website/index.html` with trial, CAD/USD price, contact email and refund policy (no refunds for partial months; mistaken charges refunded within 30 days). Hosted on Netlify at reviewwhistle.com.
 
 ## After the MVP backend works (Jeff, 2026-10-21)
