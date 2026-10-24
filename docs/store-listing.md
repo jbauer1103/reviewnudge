@@ -36,7 +36,8 @@ An account is required. New businesses get a 14-day free trial.
 google reviews,review request,small business,local business,reputation,customer feedback,text
 
 ## App Review notes (Apple)
-ReviewWhistle is a free companion app for a business service that owners subscribe to on our website (guideline 3.1.3(f)). The app has no purchasing and no links to buy. Demo account: still to do. Apple's reviewers must be able to log in, but our login sends a code by email that they can't read. Before submitting, we need a demo login (for example a reviewer email with a fixed password). Not built yet.
+ReviewWhistle is a free companion app for a business service that owners subscribe to on our website (guideline 3.1.3(f)). The app has no purchasing and no links to buy. To log in: type the demo email below on the first screen. A password box appears (only for this email); enter the password and tap "Log in". The account has a sample business, customers and history. Tapping "Ask" opens Messages with the review text; you don't need to send it.
+Demo account: appreview@reviewwhistle.com. The password is in the file .env.appreview on Jeff's computer (made by scripts/setup-app-review-account.mjs, which also resets the sample data).
 
 ## Privacy answers
 Apple "App Privacy" and Google "Data safety":
