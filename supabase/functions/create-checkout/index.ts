@@ -11,7 +11,7 @@ import { corsHeaders, ensureWebhook, json, siteUrl, stripe } from '../_shared/st
 const TRIAL_DAYS = 14;
 // Stripe finds our price by this name, so it's only created once. (The older
 // monthly_39 price, $39 in both currencies, stays on subscriptions made before.)
-const PRICE_LOOKUP_KEY = 'monthly_us29_ca39';
+const PRICE_LOOKUP_KEY = 'monthly_39cad_29usd';
 // Stripe only accepts a trial end at least 2 days away.
 const MIN_TRIAL_MS = 49 * 3600 * 1000;
 
