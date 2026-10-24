@@ -77,6 +77,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
 - Session 11 (2026-10-22): Stripe billing code, database table and functions deployed to Supabase. Jeff uses a separate ReviewWhistle account under his existing Stripe login. App renamed ReviewWhistle (reviewwhistle.com).
 - 2026-10-23: web app also served at https://app.reviewwhistle.com (EAS Hosting custom domain; Expo account jbauer1103 on a paid plan). GoDaddy records: TXT _cf-custom-hostname.app, CNAME _acme-challenge.app, CNAME app → origin.expo.app. reviewnudge.expo.app keeps working for links already sent. Twilio texting is on hold (Jeff, 2026-10-23) until paying customers ask for it.
 - 2026-10-23: app restyled to match the website (whistle logo, Plus Jakarta Sans font, website colors, always light). App icons, splash and favicon are the whistle logo too.
+- 2026-10-24: Stripe switched to live mode. STRIPE_SECRET_KEY is a live key ("Full access, except sensitive operations") that Jeff created; the live webhook set itself up on his first real checkout. Jeff's own business has a live trialing subscription.
 - 2026-10-24: scanner-proof login links ("Log me in" button), Supabase Site URL set to https://app.reviewwhistle.com. Tested by Jeff.
 - Landing page (2026-10-22): `website/index.html` with trial, US$29 / CA$39 price, contact email and refund policy (no refunds for partial months; mistaken charges refunded within 30 days). Hosted on Netlify at reviewwhistle.com.
 
