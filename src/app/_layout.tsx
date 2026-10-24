@@ -69,6 +69,7 @@ function RootNavigator() {
       <Stack.Protected guard={!!session && !!business}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="customer/[id]" />
+        <Stack.Screen name="ask-past" />
       </Stack.Protected>
       <Stack.Protected guard={!!session}>
         <Stack.Screen name="business-setup" />

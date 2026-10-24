@@ -44,6 +44,7 @@ GitHub repo `jbauer1103/reviewnudge` (private). Jeff runs the app from a clone o
   - `sign-in.tsx` = log in with an email magic link, `auth-callback.tsx` = where the email link lands
   - `(tabs)/_layout.tsx` sets up the tab bar: `(tabs)/index.tsx` = Customers (list and search), `(tabs)/dashboard.tsx` = Dashboard, `(tabs)/settings.tsx` = Settings (with Log out)
 - `src/app/customer/[id].tsx` — add a customer (`/customer/new`) or edit/delete one. Phone is required (needed to text them); email is optional.
+- `src/app/ask-past.tsx` — "Ask past customers": goes through every customer (with a phone) never asked, opening Messages for one at a time, with Skip. Opened from the button on Customers that shows when 2+ customers haven't been asked. Idea borrowed from Review Harvest's "review reactivation" (2026-10-24).
 - `src/app/business-setup.tsx` — Business setup (name, Google review link, review text). Shown after the first log in until a business is saved, and from Settings → Edit business details.
 - `src/components/` — reusable pieces. `business-provider.tsx` loads the owner's business. `app-tabs.tsx` is the phone tab bar, `app-tabs.web.tsx` the browser one. `session-provider.tsx` tracks who is logged in and reads the login link.
 - `src/lib/supabase.ts` — the Supabase connection. Keys come from `.env` (see `.env.example`), never committed.
