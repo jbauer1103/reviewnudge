@@ -65,6 +65,7 @@ export default function BusinessSetupScreen() {
             google_review_count_at_start: picked.reviewCount,
             google_review_count_latest: picked.reviewCount,
             google_review_count_checked_at: new Date().toISOString(),
+            google_address: picked.address || null,
           }
         : {}),
     };

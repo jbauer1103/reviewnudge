@@ -8,9 +8,15 @@
     "scheme": "reviewnudge",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.reviewwhistle.app",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.reviewwhistle.app",
       "adaptiveIcon": {
         "backgroundColor": "#0F7B5F",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -19,7 +25,9 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "android.permission.READ_CONTACTS",
+        "android.permission.READ_CONTACTS"
+      ],
+      "blockedPermissions": [
         "android.permission.WRITE_CONTACTS"
       ]
     },

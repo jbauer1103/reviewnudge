@@ -14,6 +14,11 @@ import { supabase } from '@/lib/supabase';
 // Log in / sign up by email: we email the owner a link to tap and a code to type in.
 // The code is the backup for when the link can't open the app (for example, email read on a computer).
 // New emails get an account automatically, so there's no separate sign-up screen.
+
+// Apple's and Google's app reviewers can't read our login emails, so this one demo
+// account logs in with a password instead. Its password is in Jeff's .env.appreview.
+const REVIEWER_EMAIL = 'appreview@reviewwhistle.com';
+
 export default function SignInScreen() {
   const theme = useTheme();
   const { linkError, clearLinkError } = useSession();
@@ -23,6 +28,18 @@ export default function SignInScreen() {
   const [code, setCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [password, setPassword] = useState('');
+  const isReviewer = email.trim().toLowerCase() === REVIEWER_EMAIL;
+
+  async function logInReviewer() {
+    setSending(true);
+    setError(null);
+    clearLinkError();
+    const { error: logInError } = await supabase.auth.signInWithPassword({ email: REVIEWER_EMAIL, password });
+    setSending(false);
+    // On success the app moves on to the tabs by itself.
+    if (logInError) setError('That password didn’t work.');
+  }
 
   // The email typed in, or null (with a message) if it doesn't look like an email.
   function checkedEmail() {
@@ -171,9 +188,26 @@ export default function SignInScreen() {
                 textContentType="emailAddress"
                 returnKeyType="send"
               />
+              {isReviewer && (
+                <TextField
+                  label="Password"
+                  value={password}
+                  onChangeText={setPassword}
+                  onSubmitEditing={logInReviewer}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  textContentType="password"
+                  returnKeyType="go"
+                />
+              )}
               <ErrorText>{message}</ErrorText>
               <View style={styles.buttons}>
-                <Button title="Email me a login link" onPress={sendLink} loading={sending} />
+                {isReviewer ? (
+                  <Button title="Log in" onPress={logInReviewer} loading={sending} />
+                ) : (
+                  <Button title="Email me a login link" onPress={sendLink} loading={sending} />
+                )}
                 <Button
                   title="I already have a code"
                   variant="ghost"
