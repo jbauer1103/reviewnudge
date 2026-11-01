@@ -94,6 +94,9 @@ export default function CustomersScreen() {
       (queryDigits.length > 0 && (customer.phone ?? '').includes(queryDigits)),
   );
 
+  // Customers never asked, from what's already loaded. lastAsked has every customer asked.
+  const notAskedCount = (customers ?? []).filter((customer) => customer.phone && !lastAsked[customer.id]).length;
+
   const openCustomer = (id: string) => router.push({ pathname: '/customer/[id]', params: { id } });
 
   return (
@@ -127,6 +130,14 @@ export default function CustomersScreen() {
               clearButtonMode="while-editing"
               accessibilityLabel="Search customers"
               left={<Icon name="search" size={18} color={theme.textSecondary} />}
+            />
+          )}
+          {notAskedCount >= 2 && (
+            <Button
+              variant="secondary"
+              icon="star"
+              title={`Ask ${notAskedCount} customers you haven’t asked`}
+              onPress={() => router.push('/ask-past')}
             />
           )}
           <ErrorText>{askError}</ErrorText>
