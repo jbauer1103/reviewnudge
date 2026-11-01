@@ -42,7 +42,7 @@ const handler = withSupabase({ auth: 'user' }, async (_req, ctx) => {
   }
   const response = await fetch(
     `https://places.googleapis.com/v1/places/${encodeURIComponent(business.google_place_id)}`,
-    { headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'userRatingCount' } },
+    { headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'userRatingCount,formattedAddress' } },
   );
   if (!response.ok) {
     console.error('Google lookup failed', response.status, await response.text());
@@ -50,13 +50,15 @@ const handler = withSupabase({ auth: 'user' }, async (_req, ctx) => {
     return json({ reviewCount: business.google_review_count_latest });
   }
 
-  const place: { userRatingCount?: number } = await response.json();
+  const place: { userRatingCount?: number; formattedAddress?: string } = await response.json();
   const reviewCount = place.userRatingCount ?? 0;
   await ctx.supabase
     .from('businesses')
     .update({
       google_review_count_latest: reviewCount,
       google_review_count_checked_at: new Date().toISOString(),
+      // Kept up to date for the bottom of follow-up emails.
+      ...(place.formattedAddress ? { google_address: place.formattedAddress } : {}),
     })
     .eq('id', business.id);
 

@@ -24,6 +24,7 @@ export default function CustomerScreen() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [unsubscribed, setUnsubscribed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +41,7 @@ export default function CustomerScreen() {
           setName(data.name);
           setPhone(formatPhone(data.phone));
           setEmail(data.email ?? '');
+          setUnsubscribed(!!data.email_unsubscribed_at);
         } else {
           setError('Couldn’t find this customer.');
         }
@@ -153,7 +155,11 @@ export default function CustomerScreen() {
             <TextField
               label="Email"
               labelNote="(optional)"
-              hint="We’ll send one friendly reminder email 48 hours after you ask for a review."
+              hint={
+                unsubscribed
+                  ? 'This customer unsubscribed, so they won’t get reminder emails.'
+                  : 'We’ll send one friendly reminder email 48 hours after you ask for a review.'
+              }
               value={email}
               onChangeText={setEmail}
               placeholder="sam@example.com"

@@ -179,10 +179,15 @@ function describePlan(plan: Plan) {
     case 'trial':
       return `Free trial: ${plan.daysLeft} ${plan.daysLeft === 1 ? 'day' : 'days'} left (ends ${formatDate(plan.endsAt)}).`;
     case 'ended':
-      return 'Your free trial has ended. Subscribe to keep asking for reviews.';
+      // Store apps can't point people to paying elsewhere, so they only state the plan.
+      return canManageBillingHere
+        ? 'Your free trial has ended. Subscribe to keep asking for reviews.'
+        : 'Your free trial has ended.';
     case 'paid':
       if (plan.status === 'past_due') {
-        return 'Your last payment didn’t go through. Please update your card.';
+        return canManageBillingHere
+          ? 'Your last payment didn’t go through. Please update your card.'
+          : 'Your last payment didn’t go through.';
       }
       if (!plan.renewsAt) return 'Subscribed.';
       return plan.cancelling
